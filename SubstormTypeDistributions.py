@@ -49,21 +49,18 @@ axes.legend(loc='center right')
 axes.set_xlabel('Waiting Time (Hours)')
 axes.set_ylabel('Probability (%)')
 axes.set_xlim(0,10)
-
+fig.show()
 
 # %%
 onsetsonlysize = -sophie80df['Delbay'][sophie80df['Isolated Type'] == 1]
 onsetextrasize = -sophie80df['Delbay'][sophie80df['Isolated Type'] == 2]
 
-fig, axes = plt.subplots(figsize=(10,6),sharex=True,sharey=True)
+fig, axes = plt.subplots(figsize=(10,6))
 
 sns.histplot(onsetsonlysize, ax=axes, stat='percent', label='G|ERG EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(onsetsonlysize),np.nanstd(onsetsonlysize),np.nanmedian(onsetsonlysize)))
 sns.histplot(onsetextrasize, ax=axes, stat='percent', label='G|ER... EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(onsetextrasize),np.nanstd(onsetextrasize),np.nanmedian(onsetextrasize)))
 axes.legend(loc='center right')
 axes.set_xlabel('Substorm size (nT)')
 axes.set_ylabel('Probability (%)')
-
-# %%
-sophie80df[sophie80df['Isolated Type'] == 1]
-
+fig.show()
 
