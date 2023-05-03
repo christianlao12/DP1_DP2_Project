@@ -1,4 +1,4 @@
-# %%
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,8 +13,6 @@ sns.set_palette("colorblind")
 
 colors = sns.color_palette("colorblind")
 
-
-# %%
 # Loading in SOPHIE Data
 ept80df = pd.read_csv("Data/SOPHIE_EPT80_1990-2022.csv", low_memory=False)
 ept80df['Date_UTC'] = pd.to_datetime(ept80df['Date_UTC'])
@@ -38,7 +36,7 @@ ept80df['Type'] = array
 particleinjections = pd.read_csv("Data/BYparticleinjections.csv")
 particleinjections['Date_UTC'] = pd.to_datetime(particleinjections['Date_UTC'])
 
-# %%
+
 Isolated_Onsets = ept80df[ept80df['Type']==1]
 Isolated_wt = np.diff(Isolated_Onsets['Date_UTC'])/pd.to_timedelta('1h')
 Isolated_wt_10 = Isolated_wt[Isolated_wt<10]
@@ -47,10 +45,7 @@ allonsets = ept80df.iloc[np.intersect1d(np.where(ept80df['Phase']==2),np.where(e
 allonsets_wt = np.diff(allonsets['Date_UTC'])/pd.to_timedelta('1h')
 allonsets_wt_10 = allonsets_wt[allonsets_wt<10]
 
-
-# %%
 fig, axes = plt.subplots(figsize=(10,6))
-
 sns.histplot(Isolated_wt_10, bins=np.arange(0,10.25,0.25), ax=axes, stat='percent', label='Isolated EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(Isolated_wt_10),np.nanstd(Isolated_wt_10),np.nanmedian(Isolated_wt_10)))
 axes.xaxis.set_major_locator(ticker.MultipleLocator(1))
 axes.set_ylim(0,14.5)
@@ -58,7 +53,7 @@ axes.legend(loc='center right')
 axes.set_xlabel('Waiting Time (Hours)')
 axes.set_ylabel('Probability (%)')
 axes.set_xlim(0,10)
-fig.show()
+plt.show()
 
 fig, axes = plt.subplots(figsize=(10,6))
 
@@ -69,8 +64,4 @@ axes.legend(loc='center right')
 axes.set_xlabel('Waiting Time (Hours)')
 axes.set_ylabel('Probability (%)')
 axes.set_xlim(0,10)
-fig.show()
-# %%
-
-
-
+plt.show()
