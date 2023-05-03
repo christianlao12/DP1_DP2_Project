@@ -64,14 +64,15 @@ ng2011_night = pd.DataFrame({'Date_UTC': onsettimes, 'MLT_onset': onsetsectors, 
 t_diff = np.setdiff1d(ng2011_night['Date_UTC'], ng2011_2001['Date_UTC'])[0]
 tstart = t_diff - pd.Timedelta('45 minutes')
 tend = t_diff + pd.Timedelta('45 minutes')
-x = SMLnightdf['Date_UTC'][SMLnightdf['Date_UTC'].between(tstart,tend)]
-y = SMLnightdf['SMLnight'][SMLnightdf['Date_UTC'].between(tstart,tend)]
-x1 = sme_df['Date_UTC'][sme_df['Date_UTC'].between(tstart,tend)]
-y1 = sme_df['SML'][sme_df['Date_UTC'].between(tstart,tend)]
+
+x_night = SMLnightdf['Date_UTC'][SMLnightdf['Date_UTC'].between(tstart,tend)]
+y_night = SMLnightdf['SMLnight'][SMLnightdf['Date_UTC'].between(tstart,tend)]
+x_all = sme_df['Date_UTC'][sme_df['Date_UTC'].between(tstart,tend)]
+y_all = sme_df['SML'][sme_df['Date_UTC'].between(tstart,tend)]
 
 fig, ax = plt.subplots(figsize=(21, 7))
-ax.plot(x,y,label='SMLnight')
-ax.plot(x1,y1,label='SML')
+ax.plot(x_night,y_night,label='SMLnight')
+ax.plot(x_all,y_all,label='SML')
 ax.axvline(pd.to_datetime(t_diff),c='k',ls='--',label='NG2011 Night MLT Onset')
 ax.set_xlabel('Time')
 ax.set_ylabel('SML (nT)')
@@ -80,25 +81,24 @@ ax.set_title('SMLnight Onset but no SML onset')
 ax.xaxis.set_major_formatter(date_form)
 fig.show()
 
-
 t_diff = np.setdiff1d(ng2011_2001['Date_UTC'], ng2011_night['Date_UTC'])[0]
 tstart = t_diff - pd.Timedelta('45 minutes')
 tend = t_diff + pd.Timedelta('45 minutes')
 
-x = SMLnightdf['Date_UTC'][SMLnightdf['Date_UTC'].between(tstart,tend)]
-y = SMLnightdf['SMLnight'][SMLnightdf['Date_UTC'].between(tstart,tend)]
-x1 = sme_df['Date_UTC'][sme_df['Date_UTC'].between(tstart,tend)]
-y1 = sme_df['SML'][sme_df['Date_UTC'].between(tstart,tend)]
+x_night1 = SMLnightdf['Date_UTC'][SMLnightdf['Date_UTC'].between(tstart,tend)]
+y_night1 = SMLnightdf['SMLnight'][SMLnightdf['Date_UTC'].between(tstart,tend)]
+x_all1 = sme_df['Date_UTC'][sme_df['Date_UTC'].between(tstart,tend)]
+y_all1 = sme_df['SML'][sme_df['Date_UTC'].between(tstart,tend)]
 
-fig1, ax = plt.subplots(figsize=(21, 7))
-ax.plot(x,y,label='SMLnight')
-ax.plot(x1,y1,label='SML')
-ax.axvline(pd.to_datetime(t_diff),c='k', ls='--', label='NG2011 Original Onset')
-ax.set_xlabel('Time')
-ax.set_ylabel('SML (nT)')
-ax.legend()
-ax.set_title('SML onset but no SMLnight onset')
-ax.xaxis.set_major_formatter(date_form)
+fig1, ax1 = plt.subplots(figsize=(21, 7))
+ax1.plot(x_night1,y_night1,label='SMLnight')
+ax1.plot(x_all1,y_all1,label='SML')
+ax1.axvline(pd.to_datetime(t_diff),c='k', ls='--', label='NG2011 Original Onset')
+ax1.set_xlabel('Time')
+ax1.set_ylabel('SML (nT)')
+ax1.legend()
+ax1.set_title('SML onset but no SMLnight onset')
+ax1.xaxis.set_major_formatter(date_form)
 fig1.show()
 
 
