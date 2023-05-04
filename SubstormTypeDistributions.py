@@ -28,33 +28,30 @@ sophie80df['Isolated Type'] = array
 
 #%% Plotting
 onlyonsets_wt = np.diff(sophie80df['Date_UTC'][sophie80df['Isolated Type'] == 1])/pd.to_timedelta(1, unit='h')
-onlyonsets_wt_10 = onlyonsets_wt[onlyonsets_wt < 10]
-
 onsets_extra_wt = np.diff(sophie80df['Date_UTC'][sophie80df['Isolated Type'] == 2])/pd.to_timedelta(1, unit='h')
-onsets_extra_wt_10 = onsets_extra_wt[onsets_extra_wt < 10]
 
-fig, axes = plt.subplots(figsize=(10,6))
+fig, axes = plt.subplots()
 
-sns.histplot(onlyonsets_wt_10,
-             bins=np.arange(0,10.25,0.25),
+sns.histplot(onlyonsets_wt,
+             bins=np.arange(0,24.25,0.25),
              ax=axes, stat='percent',
-             label='G|ERG EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(onlyonsets_wt_10),np.nanstd(onlyonsets_wt_10),np.nanmedian(onlyonsets_wt_10)))
-sns.histplot(onsets_extra_wt_10,
-             bins=np.arange(0,10.25,0.25),
+             label='G|ERG EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(onlyonsets_wt),np.nanstd(onlyonsets_wt),np.nanmedian(onlyonsets_wt)))
+sns.histplot(onsets_extra_wt,
+             bins=np.arange(0,24.25,0.25),
              ax=axes,
              stat='percent',
-             label='G|ER... EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(onsets_extra_wt_10),np.nanstd(onsets_extra_wt_10),np.nanmedian(onsets_extra_wt_10)))
+             label='G|ER... EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(onsets_extra_wt),np.nanstd(onsets_extra_wt),np.nanmedian(onsets_extra_wt)))
 axes.xaxis.set_major_locator(ticker.MultipleLocator(1))
 axes.legend(loc='upper right')
 axes.set_xlabel('Waiting Time (Hours)')
 axes.set_ylabel('Probability (%)')
-axes.set_xlim(0,10)
-fig.show()
+axes.set_xlim(0,24)
+plt.show()
 
 onsetsonlysize = -sophie80df['Delbay'][sophie80df['Isolated Type'] == 1]
 onsetextrasize = -sophie80df['Delbay'][sophie80df['Isolated Type'] == 2]
 
-fig, axes = plt.subplots(figsize=(10,6))
+fig, axes = plt.subplots()
 
 sns.histplot(onsetsonlysize,
              ax=axes,
@@ -69,5 +66,8 @@ sns.histplot(onsetextrasize,
 axes.legend(loc='center right')
 axes.set_xlabel('Substorm size (nT)')
 axes.set_ylabel('Probability (%)')
-fig.show()
+axes.set_xlim(0,2000)
+plt.show()
 
+
+# %%

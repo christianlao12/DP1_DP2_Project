@@ -1,4 +1,4 @@
-
+# %% Imports
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,7 +11,7 @@ sns.set_palette("colorblind")
 
 colors = sns.color_palette("colorblind")
 
-# Loading in Data
+# %% Loading in Data
 ept80df = pd.read_csv("Data/SOPHIE_EPT80_1990-2022.csv", low_memory=False)
 ept80df['Date_UTC'] = pd.to_datetime(ept80df['Date_UTC'])
 ept80df = ept80df[ept80df['Date_UTC'].between('1996','2021')].reset_index(drop=True)
@@ -30,6 +30,8 @@ for i, __ in ept80df.iloc[1:-1].iterrows():
         continue
 ept80df['Type'] = array
 
+
+# %% Plotting
 Isolated_Onsets = ept80df[ept80df['Type']==1]
 Isolated_wt = np.diff(Isolated_Onsets['Date_UTC'])/pd.to_timedelta('1h')
 Isolated_wt_10 = Isolated_wt[Isolated_wt<10]
@@ -38,7 +40,7 @@ allonsets = ept80df.iloc[np.intersect1d(np.where(ept80df['Phase']==2),np.where(e
 allonsets_wt = np.diff(allonsets['Date_UTC'])/pd.to_timedelta('1h')
 allonsets_wt_10 = allonsets_wt[allonsets_wt<10]
 
-fig, axes = plt.subplots(figsize=(10,6))
+fig, axes = plt.subplots()
 sns.histplot(Isolated_wt_10,
              bins=np.arange(0,10.25,0.25),
              ax=axes, stat='percent',
@@ -50,9 +52,10 @@ axes.legend(loc='center right')
 axes.set_xlabel('Waiting Time (Hours)')
 axes.set_ylabel('Probability (%)')
 axes.set_xlim(0,10)
-fig.show()
+plt.tight_layout()
+plt.show()
 
-fig, axes = plt.subplots(figsize=(10,6))
+fig, axes = plt.subplots()
 
 sns.histplot(allonsets_wt_10,
              bins=np.arange(0,10.25,0.25),
@@ -66,5 +69,8 @@ axes.legend(loc='center right')
 axes.set_xlabel('Waiting Time (Hours)')
 axes.set_ylabel('Probability (%)')
 axes.set_xlim(0,10)
-fig.show()
+plt.tight_layout()
+plt.show()
 
+
+# %%
