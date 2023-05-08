@@ -28,7 +28,7 @@ smeindices = np.concatenate(([smeindices[0]-1],smeindices,[smeindices[-1]+1]))
 
 sophieslice = sophie80df.iloc[smeindices]
 cm = 1/2.54
-fig, ax = plt.subplots(figsize=(21*cm,7*cm),dpi=300)
+fig, ax = plt.subplots(figsize=(18*cm,6*cm),dpi=300)
 ax.plot(datetimes, sml)
 ax.set_xlim(tstart,tend)
 
