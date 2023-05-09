@@ -25,8 +25,9 @@ smllt = pd.read_csv("Data/SML_LT_1999-2002.txt")
 smllt['Date_UTC'] = pd.to_datetime(smllt['Date_UTC'])
 
 #%% Data Subselection & Plotting
-tstart = pd.to_datetime("1999-02-18 04:00")
-duration = pd.Timedelta(hours=20)
+tstart = pd.to_datetime("1999-02-18 03:00")
+duration = pd.Timedelta(hours=17)
+
 tend = pd.to_datetime(tstart + duration)
 
 datetimes = smedf[smedf['Date_UTC'].between(tstart, tend)]['Date_UTC']
@@ -41,7 +42,7 @@ sawtoothslice = sawtoothdf[sawtoothdf['Date_UTC'].between(tstart, tend)]
 
 smlltslice = smllt[smllt['Date_UTC'].between(tstart, tend)]
 
-fig, (ax, ax1) = plt.subplots(2,1,sharex=True,dpi=300)
+fig, (ax, ax1) = plt.subplots(2,1,sharex=True,dpi=600)
 
 ax.plot(datetimes, sml,label="SML")
 ax.plot(datetimes, smu,label="SMU")
