@@ -6,7 +6,6 @@ from matplotlib import ticker
 import seaborn as sns
 
 sns.set_theme(context='paper', style='ticks', palette='colorblind')
-
 colors = sns.color_palette("colorblind")
 
 # %% Loading in Data

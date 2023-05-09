@@ -19,8 +19,9 @@ sawtoothdf = sawtoothdf.drop(columns=['Year','Month','Day','Hour','Minute','Seco
 sawtoothdf = sawtoothdf[['Date_UTC', 'Value']]
 
 #%% Plotting
-tstart = pd.to_datetime("2002-11-18 08:00")
-tend = pd.to_datetime("2002-11-18 20:00")
+tstart = pd.to_datetime("2000-08-11 00:00")
+duration = pd.Timedelta(hours=15)
+tend = pd.to_datetime(tstart + duration)
 
 datetimes = smedf[smedf['Date_UTC'].between(tstart, tend)]['Date_UTC']
 sml = smedf[smedf['Date_UTC'].between(tstart, tend)]['SML']
@@ -59,8 +60,8 @@ for index, row in sophieslice.iloc[:-1].iterrows():
 for index, row in sawtoothslice.iterrows():
     ax.axvline(sawtoothslice.loc[index]['Date_UTC'], color='k', linestyle='--', alpha=0.8)
 
-ax.xaxis.set_minor_locator(dates.HourLocator(interval=1))
-ax.xaxis.set_major_locator(dates.HourLocator(interval=8))
+ax.xaxis.set_minor_locator(dates.MinuteLocator(interval=45))
+ax.xaxis.set_major_locator(dates.HourLocator(interval=3))
 ax.grid(which='major', axis='both', alpha=1)
 ax.xaxis.set_major_formatter(dates.DateFormatter("%Y-%m-%d\n%H:%M"))
 ax.set_xlabel("Date (UTC)")
