@@ -39,8 +39,8 @@ allonsets_wt = np.diff(allonsets['Date_UTC'])/pd.to_timedelta('1h')
 allonsets_wt_10 = allonsets_wt[allonsets_wt<10]
 
 premidnightonset = allonsets[18<allonsets['MLT']]
-premidnightonset_t = np.diff(premidnightonset['Date_UTC'])/pd.to_timedelta('1h')
-premidnightonset_t_10 = premidnightonset_t[premidnightonset_t<10]
+premidnightonset_wt = np.diff(premidnightonset['Date_UTC'])/pd.to_timedelta('1h')
+premidnightonset_wt_10 = premidnightonset_wt[premidnightonset_wt<10]
 
 fig, axes = plt.subplots()
 sns.histplot(Isolated_wt_10,
@@ -76,11 +76,11 @@ plt.show()
 
 fig, axes = plt.subplots()
 
-sns.histplot(premidnightonset_t_10,
+sns.histplot(premidnightonset_wt_10,
                 bins=np.arange(0,10.25,0.25),
                 ax=axes,
                 stat='percent',
-                label='Premidnight EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(premidnightonset_t_10),np.nanstd(premidnightonset_t_10),np.nanmedian(premidnightonset_t_10))
+                label='Premidnight EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(premidnightonset_wt_10),np.nanstd(premidnightonset_wt_10),np.nanmedian(premidnightonset_wt_10))
                 )
 axes.xaxis.set_major_locator(ticker.MultipleLocator(1))
 axes.set_ylim(0,14.5)
