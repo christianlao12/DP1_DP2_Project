@@ -5,9 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 import seaborn as sns
 
-sns.set_theme()
-sns.set_context("paper")
-sns.set_palette("colorblind")
+sns.set_theme(context='paper', style='ticks', palette='colorblind')
 
 colors = sns.color_palette("colorblind")
 
@@ -40,6 +38,10 @@ allonsets = ept80df.iloc[np.intersect1d(np.where(ept80df['Phase']==2),np.where(e
 allonsets_wt = np.diff(allonsets['Date_UTC'])/pd.to_timedelta('1h')
 allonsets_wt_10 = allonsets_wt[allonsets_wt<10]
 
+premidnightonset = allonsets[18<allonsets['MLT']]
+premidnightonset_t = np.diff(premidnightonset['Date_UTC'])/pd.to_timedelta('1h')
+premidnightonset_t_10 = premidnightonset_t[premidnightonset_t<10]
+
 fig, axes = plt.subplots()
 sns.histplot(Isolated_wt_10,
              bins=np.arange(0,10.25,0.25),
@@ -71,6 +73,24 @@ axes.set_ylabel('Probability (%)')
 axes.set_xlim(0,10)
 plt.tight_layout()
 plt.show()
+
+fig, axes = plt.subplots()
+
+sns.histplot(premidnightonset_t_10,
+                bins=np.arange(0,10.25,0.25),
+                ax=axes,
+                stat='percent',
+                label='Premidnight EPT80: Mean: {:.2f}, Std. Dev: {:.2f}, Median: {:.2f}'.format(np.nanmean(premidnightonset_t_10),np.nanstd(premidnightonset_t_10),np.nanmedian(premidnightonset_t_10))
+                )
+axes.xaxis.set_major_locator(ticker.MultipleLocator(1))
+axes.set_ylim(0,14.5)
+axes.legend(loc='center right')
+axes.set_xlabel('Waiting Time (Hours)')
+axes.set_ylabel('Probability (%)')
+axes.set_xlim(0,10)
+plt.tight_layout()
+plt.show()
+
 
 
 # %%

@@ -3,9 +3,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import ticker, dates
-import seaborn as sns
-
-sns.set_theme(context="paper",style="whitegrid",palette="colorblind",)
 
 #%% Loading in Data
 sophie80df = pd.read_csv("Data/SOPHIE_EPT80_1990-2022.csv", low_memory=False)
@@ -16,21 +13,38 @@ sophie80df['Delbay'] = pd.to_numeric(sophie80df['Delbay'],errors='coerce')
 smedf = pd.read_csv("Data/SuperMAGData.csv")
 smedf['Date_UTC'] = pd.to_datetime(smedf['Date_UTC'])
 
+sawtoothdf = pd.read_csv("Data/sawtooth_events.txt", delim_whitespace=True, header=None, names=['Year','Month','Day','Hour','Minute','Second', 'Value'])
+sawtoothdf['Date_UTC'] = pd.to_datetime(sawtoothdf[['Year','Month','Day','Hour','Minute','Second']])
+sawtoothdf = sawtoothdf.drop(columns=['Year','Month','Day','Hour','Minute','Second'])
+sawtoothdf = sawtoothdf[['Date_UTC', 'Value']]
+
 #%% Plotting
-tstart = pd.to_datetime("2002-04-18")
-tend = pd.to_datetime("2002-04-19")
+tstart = pd.to_datetime("2002-11-18 08:00")
+tend = pd.to_datetime("2002-11-18 20:00")
 
 datetimes = smedf[smedf['Date_UTC'].between(tstart, tend)]['Date_UTC']
 sml = smedf[smedf['Date_UTC'].between(tstart, tend)]['SML']
+smu = smedf[smedf['Date_UTC'].between(tstart, tend)]['SMU']
 
-smeindices = sophie80df[sophie80df['Date_UTC'].between(tstart, tend)].index.to_numpy()
-smeindices = np.concatenate(([smeindices[0]-1],smeindices,[smeindices[-1]+1]))
+phasesindices = sophie80df[sophie80df['Date_UTC'].between(tstart, tend)].index.to_numpy()
+phasesindices = np.concatenate(([phasesindices[0]-1],phasesindices,[phasesindices[-1]+1]))
 
-sophieslice = sophie80df.iloc[smeindices]
+sophieslice = sophie80df.iloc[phasesindices]
+
+sawtoothslice = sawtoothdf[sawtoothdf['Date_UTC'].between(tstart, tend)]
+
 cm = 1/2.54
-fig, ax = plt.subplots(figsize=(18*cm,6*cm),dpi=300)
-ax.plot(datetimes, sml)
+fig, ax = plt.subplots(dpi=300)
+
+ax.plot(datetimes, sml,label="SML")
+ax.plot(datetimes, smu,label="SMU")
 ax.set_xlim(tstart,tend)
+
+ax.plot([],[],color='green',alpha=0.2,label="Growth")
+ax.plot([],[],color='red',alpha=0.2,label="Expansion")
+ax.plot([],[],color='blue',alpha=0.2,label="Recovery")
+ax.plot([],[],color='k',alpha=0.2,label="Convection")
+ax.plot([],[],color='k',linestyle='--',alpha=0.8,label="Sawtooth")
 
 for index, row in sophieslice.iloc[:-1].iterrows():
     if sophieslice.loc[index]['Phase'] == 1: # Growth
@@ -41,11 +55,17 @@ for index, row in sophieslice.iloc[:-1].iterrows():
         ax.axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='blue', alpha=0.2)
     if sophieslice.loc[index]['Flag'] == 1: # Convection
         ax.axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='k', alpha=0.2)
-ax.set_ylim(top=0)
+
+for index, row in sawtoothslice.iterrows():
+    ax.axvline(sawtoothslice.loc[index]['Date_UTC'], color='k', linestyle='--', alpha=0.8)
+
+ax.xaxis.set_minor_locator(dates.HourLocator(interval=1))
+ax.xaxis.set_major_locator(dates.HourLocator(interval=8))
+ax.grid(which='major', axis='both', alpha=1)
 ax.xaxis.set_major_formatter(dates.DateFormatter("%Y-%m-%d\n%H:%M"))
 ax.set_xlabel("Date (UTC)")
 ax.set_ylabel("SML (nT)")
-plt.tight_layout()
+ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),frameon=False,fontsize='small')
 plt.show()
 
 # %%
