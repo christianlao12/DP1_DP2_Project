@@ -35,38 +35,39 @@ sophieslice = sophie80df.iloc[phasesindices]
 sawtoothslice = sawtoothdf[sawtoothdf['Date_UTC'].between(tstart, tend)]
 
 cm = 1/2.54
-fig, ax = plt.subplots(dpi=300)
+fig, axes = plt.subplots(2,1,dpi=300,sharex=True)
 
-ax.plot(datetimes, sml,label="SML")
-ax.plot(datetimes, smu,label="SMU")
-ax.set_xlim(tstart,tend)
+axes[0].plot(datetimes, sml,label="SML")
+axes[0].plot(datetimes, smu,label="SMU")
+axes[0].set_xlim(tstart,tend)
 
-ax.plot([],[],color='green',alpha=0.2,label="Growth")
-ax.plot([],[],color='red',alpha=0.2,label="Expansion")
-ax.plot([],[],color='blue',alpha=0.2,label="Recovery")
-ax.plot([],[],color='k',alpha=0.2,label="Convection")
-ax.plot([],[],color='k',linestyle='--',alpha=0.8,label="Sawtooth")
+axes[0].plot([],[],color='green',alpha=0.2,label="Growth")
+axes[0].plot([],[],color='red',alpha=0.2,label="Expansion")
+axes[0].plot([],[],color='blue',alpha=0.2,label="Recovery")
+axes[0].plot([],[],color='k',alpha=0.2,label="Convection")
+axes[0].plot([],[],color='k',linestyle='--',alpha=0.8,label="Sawtooth")
 
 for index, row in sophieslice.iloc[:-1].iterrows():
     if sophieslice.loc[index]['Phase'] == 1: # Growth
-        ax.axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='green', alpha=0.2)
+        axes[0].axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='green', alpha=0.2)
     if sophieslice.loc[index]['Phase'] == 2 and sophieslice.loc[index]['Flag'] == 0: # Expansion
-        ax.axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='red', alpha=0.2)
+        axes[0].axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='red', alpha=0.2)
     if sophieslice.loc[index]['Phase'] == 3 and sophieslice.loc[index]['Flag'] == 0: # Recovery
-        ax.axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='blue', alpha=0.2)
+        axes[0].axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='blue', alpha=0.2)
     if sophieslice.loc[index]['Flag'] == 1: # Convection
-        ax.axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='k', alpha=0.2)
+        axes[0].axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='k', alpha=0.2)
 
 for index, row in sawtoothslice.iterrows():
-    ax.axvline(sawtoothslice.loc[index]['Date_UTC'], color='k', linestyle='--', alpha=0.8)
+    axes[0].axvline(sawtoothslice.loc[index]['Date_UTC'], color='k', linestyle='--', alpha=0.8)
 
-ax.xaxis.set_minor_locator(dates.MinuteLocator(interval=45))
-ax.xaxis.set_major_locator(dates.HourLocator(interval=3))
-ax.grid(which='major', axis='both', alpha=1)
-ax.xaxis.set_major_formatter(dates.DateFormatter("%Y-%m-%d\n%H:%M"))
-ax.set_xlabel("Date (UTC)")
-ax.set_ylabel("SML (nT)")
-ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),frameon=False,fontsize='small')
+axes[0].xaxis.set_minor_locator(dates.MinuteLocator(interval=45))
+axes[0].xaxis.set_major_locator(dates.HourLocator(interval=3))
+axes[0].grid(which='major', axis='both', alpha=1)
+axes[0].xaxis.set_major_formatter(dates.DateFormatter("%Y-%m-%d\n%H:%M"))
+axes[0].set_xlabel("Date (UTC)")
+axes[0].set_ylabel("SML (nT)")
+axes[0].legend(loc='center left', bbox_to_anchor=(1, 0.5),frameon=False,fontsize='small')
+fig.tight_layout()
 plt.show()
 
 # %%
