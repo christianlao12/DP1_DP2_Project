@@ -21,12 +21,13 @@ sawtoothdf['Date_UTC'] = pd.to_datetime(sawtoothdf[['Year','Month','Day','Hour',
 sawtoothdf = sawtoothdf.drop(columns=['Year','Month','Day','Hour','Minute','Second'])
 sawtoothdf = sawtoothdf[['Date_UTC', 'Value']]
 
-smllt = pd.read_csv("Data/SML_LT_1999-2002.txt")
-smllt['Date_UTC'] = pd.to_datetime(smllt['Date_UTC'])
+smlltdf = pd.read_csv("Data/SML_LT_1999-2002.txt")
+smlltdf['Date_UTC'] = pd.to_datetime(smlltdf['Date_UTC'])
+
 
 #%% Data Subselection & Plotting
-tstart = pd.to_datetime("1999-02-18 03:00")
-duration = pd.Timedelta(hours=17)
+tstart = pd.to_datetime("1999-02-18 04:00")
+duration = pd.Timedelta(hours=20)
 
 tend = pd.to_datetime(tstart + duration)
 
@@ -40,9 +41,14 @@ phasesindices = np.concatenate(([phasesindices[0]-1],phasesindices,[phasesindice
 sophieslice = sophie80df.iloc[phasesindices]
 sawtoothslice = sawtoothdf[sawtoothdf['Date_UTC'].between(tstart, tend)]
 
-smlltslice = smllt[smllt['Date_UTC'].between(tstart, tend)]
+smlltslice = smlltdf[smlltdf['Date_UTC'].between(tstart, tend)]
+smlltarray = smlltslice.values[:,1:].astype(float).T
 
-fig, (ax, ax1) = plt.subplots(2,1,sharex=True,dpi=600)
+if len(np.where(smlltarray>5000)) > 0:
+    smlltarray[np.where(smlltarray>5000)] = np.nan
+
+# Plotting
+fig, (ax, ax1) = plt.subplots(2,1,dpi=300,sharex=True)
 
 ax.plot(datetimes, sml,label="SML")
 ax.plot(datetimes, smu,label="SMU")
@@ -64,19 +70,19 @@ for index, row in sophieslice.iloc[:-1].iterrows():
     if sophieslice.loc[index]['Flag'] == 1: # Convection
         ax.axvspan(sophieslice.loc[index]['Date_UTC'], sophieslice.loc[index+1]['Date_UTC'], facecolor='k', alpha=0.2)
 
-mesh = ax1.pcolormesh(datetimes,np.arange(24),smlltslice.values[:,1:].astype(float).T)
-fig.colorbar(mesh, ax=ax1, label="SML LT (nT)",location='top')
-ax1.set_ylim(0,23)
-ax1.set_yticks(np.arange(0,24,6))
-ax1.set_xlabel("Date (UTC)")
-ax1.set_ylabel("MLT")
-
 ax.xaxis.set_minor_locator(dates.HourLocator(interval=1))
 ax.xaxis.set_major_locator(dates.HourLocator(interval=4))
 ax.grid(which='major', axis='both', alpha=1)
 ax.xaxis.set_major_formatter(dates.DateFormatter("%Y/%m/%d\n%H:%M"))
 ax.set_ylabel("SML (nT)")
 ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),frameon=False,fontsize='small')
+
+mesh = ax1.pcolormesh(datetimes,np.arange(24),smlltarray,)
+fig.colorbar(mesh, ax=ax1, label="SML LT (nT)",location='bottom')
+ax1.set_ylim(0,23)
+ax1.set_yticks(np.arange(0,24,6))
+ax1.set_ylabel("MLT")
+ax1.xaxis.tick_top()
 
 for index, row in sawtoothslice.iterrows():
     ax.axvline(sawtoothslice.loc[index]['Date_UTC'], color='k', linestyle='--', alpha=0.8)
