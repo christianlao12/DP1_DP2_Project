@@ -50,13 +50,17 @@ smlltarray = smlltslice.values[:,1:].astype(float).T
 smuslice = smultdf[smultdf['Date_UTC'].between(tstart, tend)]
 smultarray = smuslice.values[:,1:].astype(float).T
 
+sml21 = smlltdf['SMLr21'][smlltdf['Date_UTC'].between(tstart, tend)]
+sml00 = smlltdf['SMLr00'][smlltdf['Date_UTC'].between(tstart, tend)]
+sml03 = smlltdf['SMLr03'][smlltdf['Date_UTC'].between(tstart, tend)]
+
 # Removing outliers
 
 if len(np.where(smlltarray>5000)) > 0:
     smlltarray[np.where(smlltarray>5000)] = np.nan
 
 # Plotting
-fig, (ax, ax1, ax2) = plt.subplots(3,1,figsize=(10,10),dpi=300,sharex=True)
+fig, (ax, ax1, ax2, ax3) = plt.subplots(4 ,1,figsize=(10,10),dpi=300,sharex=True)
 
 mesh1 = ax.pcolormesh(datetimes,np.arange(24),smultarray, cmap='mako')
 fig.colorbar(mesh1, ax=ax, label="SMU LT (nT)",location='top')
@@ -79,7 +83,7 @@ ax1.plot([],[],color='red',alpha=0.2,label="Expansion")
 ax1.plot([],[],color='k',alpha=0.2,label="Convection")
 ax1.plot([],[],color='k',linestyle='--',alpha=0.8,label="Sawtooth")
 
-ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5),frameon=False,fontsize='small')
+ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5),frameon=False)
 
 for index, row in sophieslice.iloc[:-1].iterrows():
     if sophieslice.loc[index]['Phase'] == 1: # Growth
@@ -101,12 +105,21 @@ ax2.set_ylim(0,23)
 ax2.set_yticks(np.arange(0,24,6))
 ax2.set_ylabel("MLT")
 ax2.xaxis.tick_top()
+ax2.tick_params(labelbottom=False,labeltop=True)
 
 for index, row in sawtoothslice.iterrows():
     ax.axvline(sawtoothslice.loc[index]['Date_UTC'], color='k', linestyle='--', alpha=0.8)
     ax1.axvline(sawtoothslice.loc[index]['Date_UTC'], color='k', linestyle='--', alpha=0.8)
     ax2.axvline(sawtoothslice.loc[index]['Date_UTC'], color='k', linestyle='--', alpha=0.8)
+    ax3.axvline(sawtoothslice.loc[index]['Date_UTC'], color='k', linestyle='--', alpha=0.8)
 
+ax3.plot(datetimes, sml21,label="SML at 21 MLT")
+ax3.plot(datetimes, sml00,label="SML at 00 MLT")
+ax3.plot(datetimes, sml03,label="SML at 03 MLT")
+ax3.set_ylabel("SML (nT)")
+ax3.set_ylim(top=50)
+ax3.legend(loc='center left', bbox_to_anchor=(1, 0.5),frameon=False)
+ax3.grid(which='major', axis='both', alpha=1)
 plt.tight_layout()
 plt.show()
 
