@@ -29,11 +29,10 @@ smultdf = pd.read_csv("Data/SMU_LT_1999-2002.txt")
 smultdf['Date_UTC'] = pd.to_datetime(smultdf['Date_UTC'])
 
 #%% Data Subselection & Plotting
-tstart = pd.to_datetime("1999-02-18 02:00")
-duration = pd.Timedelta(hours=24)
-
+tstart = pd.to_datetime("2002-11-18 09:00")
+duration = pd.Timedelta(hours=10)
 tend = pd.to_datetime(tstart + duration)
-
+print(tend)
 datetimes = smedf[smedf['Date_UTC'].between(tstart, tend)]['Date_UTC']
 sml = smedf[smedf['Date_UTC'].between(tstart, tend)]['SML']
 smu = smedf[smedf['Date_UTC'].between(tstart, tend)]['SMU']
@@ -50,17 +49,28 @@ smlltarray = smlltslice.values[:,1:].astype(float).T
 smuslice = smultdf[smultdf['Date_UTC'].between(tstart, tend)]
 smultarray = smuslice.values[:,1:].astype(float).T
 
-sml21 = smlltdf['SMLr21'][smlltdf['Date_UTC'].between(tstart, tend)]
-sml00 = smlltdf['SMLr00'][smlltdf['Date_UTC'].between(tstart, tend)]
-sml03 = smlltdf['SMLr03'][smlltdf['Date_UTC'].between(tstart, tend)]
+sml21 = smlltdf['SMLr21'][smlltdf['Date_UTC'].between(tstart, tend)].values.astype(float)
+sml00 = smlltdf['SMLr00'][smlltdf['Date_UTC'].between(tstart, tend)].values.astype(float)
+sml03 = smlltdf['SMLr03'][smlltdf['Date_UTC'].between(tstart, tend)].values.astype(float)
 
 # Removing outliers
+if len(np.where(sml00>50000)) > 0:
+    sml00[np.where(sml00>50000)] = np.nan
 
-if len(np.where(smlltarray>5000)) > 0:
-    smlltarray[np.where(smlltarray>5000)] = np.nan
+if len(np.where(sml03>50000)) > 0:
+    sml03[np.where(sml03>50000)] = np.nan
+
+if len(np.where(sml21>50000)) > 0:
+    sml21[np.where(sml21>50000)] = np.nan
+
+if len(np.where(smlltarray>50000)) > 0:
+    smlltarray[np.where(smlltarray>50000)] = np.nan
+
+if len(np.where(smultarray>50000)) > 0:
+    smultarray[np.where(smultarray>50000)] = np.nan
 
 # Plotting
-fig, (ax, ax1, ax2, ax3) = plt.subplots(4 ,1,figsize=(10,10),dpi=300,sharex=True)
+fig, (ax, ax1, ax2, ax3) = plt.subplots(4 ,1,figsize=(16,10),dpi=300,sharex=True)
 
 mesh1 = ax.pcolormesh(datetimes,np.arange(24),smultarray, cmap='mako')
 fig.colorbar(mesh1, ax=ax, label="SMU LT (nT)",location='top')
@@ -117,7 +127,7 @@ ax3.plot(datetimes, sml21,label="SML at 21 MLT")
 ax3.plot(datetimes, sml00,label="SML at 00 MLT")
 ax3.plot(datetimes, sml03,label="SML at 03 MLT")
 ax3.set_ylabel("SML (nT)")
-ax3.set_ylim(top=50)
+# ax3.set_ylim(top=50)
 ax3.legend(loc='center left', bbox_to_anchor=(1, 0.5),frameon=False)
 ax3.grid(which='major', axis='both', alpha=1)
 plt.tight_layout()
