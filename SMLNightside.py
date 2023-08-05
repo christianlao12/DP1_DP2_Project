@@ -1,3 +1,4 @@
+# %% Importing Libraries
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,6 +12,7 @@ sns.set_palette("colorblind")
 colors = sns.color_palette("colorblind")
 date_form = DateFormatter("%Y-%m-%d\n%H:%M")
 
+#%% Loading in Data
 sml_lt_df = pd.read_csv("Data/SML LT 2001.csv")
 sml_lt_df['Date_UTC'] = pd.to_datetime(sml_lt_df['Date_UTC'])
 
@@ -21,7 +23,7 @@ ng2011df = pd.read_csv("Data/substorms-newell-20000101_000000_to_20070101_000000
 ng2011df['Date_UTC'] = pd.to_datetime(ng2011df['Date_UTC'])
 ng2011_2001 = ng2011df[ng2011df['Date_UTC'].dt.year == 2001].reset_index(drop=True)
 
-# SML nightside creation
+# %% SML nightside creation
 no_sectors = 7
 MLT_sectors = np.concatenate([np.arange((24-np.floor(no_sectors/2)), 24), np.arange(0, no_sectors/2)]).ravel().astype(int)
 allsec = [i for i in np.arange(0,24)]
@@ -31,7 +33,7 @@ SMLnightdf = pd.DataFrame({'Date_UTC':sml_lt_df['Date_UTC'],'SMLnight':sml_lt_df
 SMLalldf = pd.DataFrame({'Date_UTC':sml_lt_df['Date_UTC'],'SMLall':sml_lt_df[allsec_names].min(axis=1)})
 
 
-# Implementing the Newell and Gjerloev algorithm
+# %% Implementing the Newell and Gjerloev algorithm
 onsettimes = []
 onsetsectors = []
 minimas = []
