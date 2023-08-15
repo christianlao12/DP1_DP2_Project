@@ -76,7 +76,6 @@ expansiondf.reset_index(drop=True,inplace=True)
 isolated = np.intersect1d(np.where(expansiondf['Isolated']==1),np.where(expansiondf['New Flag']==0))
 array_iso = np.zeros(len(expansiondf))
 iso_onsets = expansiondf.iloc[isolated]
-np.intersect1d
 
 array_iso[isolated] = True
 first_iso = np.where(np.diff(array_iso)==1)[0] + 1
@@ -99,7 +98,22 @@ comp1stdf = expansiondf.iloc[first_comp]
 complastdf = expansiondf.iloc[last_comp]
 compchainlengths = (complastdf.index.to_numpy() - comp1stdf.index.to_numpy()) + 1
 
-# Chain counts and densities
+# %% Finding longest Isolated chain
+
+index_max_iso = np.where(isochainlengths==np.max(isochainlengths))[0]
+expansiondf.loc[first_iso[index_max_iso]:last_iso[index_max_iso]]
+# iso1stdf.iloc[7537]
+# isolastdf.iloc[7537]
+
+# %% Finding longest Compound chain
+
+index_max_comp = np.where(compchainlengths==np.max(compchainlengths))[0]
+expansiondf.loc[first_comp[index_max_comp[1]]:+last_comp[index_max_comp[1]]]
+# comp1stdf.iloc[0]
+# complastdf.iloc[0]
+
+
+#%% Chain counts and densities
 isochain_len, isochain_count = np.unique(isochainlengths, return_counts=True)
 isochain_dens = isochain_count/np.sum(isochain_count)
 
@@ -215,5 +229,6 @@ ax1.hlines(0.5,0,np.max(compchainlengths),linestyles='dashed',colors='k')
 
 
 fig.tight_layout(pad=1)
+
 
 # %%
