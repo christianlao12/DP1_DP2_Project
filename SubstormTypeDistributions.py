@@ -6,6 +6,7 @@ from matplotlib import ticker
 import seaborn as sns
 
 sns.set_theme(context="paper",style="whitegrid",palette="colorblind",)
+colors = sns.color_palette("colorblind",as_cmap=True)
 
 #%% Loading in SOPHIE Data
 sophie80df = pd.read_csv("Data/SOPHIE_EPT80_1990-2022.csv", low_memory=False)
