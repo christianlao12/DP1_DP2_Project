@@ -139,6 +139,7 @@ fig, (ax, ax1) = plt.subplots(2,1, dpi=300 ,sharex=True, sharey=True)
 label = 'No. of expansion onsets: {}, Longest Chain: {}'.format(len(iso_onsets), np.max(isochainlengths))
 
 ax.bar(isochain_len,isochain_count,label=label)
+ax.errorbar(isochain_len,isochain_count,yerr=isochain_count_err,fmt='none',ecolor='k',elinewidth=1,capsize=2)
 ax.set_xlabel('Length of repeating pattern')
 ax.set_ylabel('Counts')
 ax.legend(bbox_to_anchor=(1, .5), loc='center left')
@@ -149,6 +150,7 @@ ax.xaxis.set_tick_params(labelbottom=True)
 label = 'No. of expansion onsets: {}, Longest Chain: {}'.format(len(comp_onsets), np.max(compchainlengths))
 
 ax1.bar(compchain_len,compchain_count,label=label)
+ax1.errorbar(compchain_len,compchain_count,yerr=compchain_count_err,fmt='none',ecolor='k',elinewidth=1,capsize=2)
 ax1.set_xlabel('Length of repeating pattern')
 ax1.set_ylabel('Counts')
 ax1.legend(bbox_to_anchor=(1, .5), loc='center left')
@@ -187,7 +189,8 @@ fig.tight_layout(pad=1)
 
 fig, (ax, ax1) = plt.subplots(2,1,sharex=True,dpi=300)
 
-ax.bar(isochain_len,isochain_dens,yerr=isochain_dens_err,label='Number of onsets: {}, max chain length: {}'.format(len(iso_onsets),np.max(isochainlengths)))
+ax.bar(isochain_len,isochain_dens,label='Number of onsets: {}, max chain length: {}'.format(len(iso_onsets),np.max(isochainlengths)))
+ax.errorbar(isochain_len,isochain_dens,yerr=isochain_dens_err,fmt='none',ecolor='k',elinewidth=1,capsize=2)
 ax.set_title('Isolated Chains')
 ax.legend(loc='center right')
 ax.set_xlabel('Length of repeating pattern')
@@ -209,7 +212,8 @@ fig.tight_layout(pad=1)
 # %% Plot Compound chain length transition probability
 fig, (ax, ax1) = plt.subplots(2,1,sharex=True,dpi=300)
 
-ax.bar(compchain_len,compchain_dens,yerr=compchain_dens_err,label='Number of onsets: {}, max chain length: {}'.format(len(comp_onsets),np.max(compchainlengths)))
+ax.bar(compchain_len,compchain_dens,label='Number of onsets: {}, max chain length: {}'.format(len(comp_onsets),np.max(compchainlengths)))
+ax.errorbar(compchain_len,compchain_dens,yerr=compchain_dens_err,fmt='none',ecolor='k',elinewidth=1,capsize=2)
 ax.set_title('Compound Chains')
 ax.legend(loc='center right')
 ax.set_xlabel('Length of repeating pattern')
@@ -291,7 +295,11 @@ compchain_greq_2_0304_months_dens = compchain_greq_2_0304_months_count/np.sum(co
 
 fig, ax = plt.subplots(2,1,dpi=300,sharex=True,sharey=True)
 
-ax[0].bar(isochain_greq_2_0304_months,isochain_greq_2_0304_months_dens,label='Number of onsets: {}'.format(np.sum(isochainlengths[isochain_greq_2_0304])))
+ax[0].bar(
+        isochain_greq_2_0304_months,
+        isochain_greq_2_0304_months_dens,
+        label='Number of onsets: {}'.format(np.sum(isochainlengths[isochain_greq_2_0304]))
+        )
 ax[0].set_xlabel('Month')
 ax[0].set_ylabel('Probability Density')
 ax[0].set_title('Monthly occurence of First Onset of Isolated chains (Length >= 2)')
@@ -299,7 +307,11 @@ ax[0].legend(loc='best')
 ax[0].xaxis.set_tick_params(labelbottom=True)
 ax[0].xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-ax[1].bar(compchain_greq_2_0304_months,compchain_greq_2_0304_months_dens,color=colors[1], label='Number of onsets: {}'.format(np.sum(compchainlengths[compchain_greq_2_0304])))
+ax[1].bar(
+        compchain_greq_2_0304_months,
+        compchain_greq_2_0304_months_dens,color=colors[1],
+        label='Number of onsets: {}'.format(np.sum(compchainlengths[compchain_greq_2_0304]))
+        )
 ax[1].set_xlabel('Month')
 ax[1].set_ylabel('Probability Density')
 ax[1].set_title('Monthly occurence of First Onset of Compound chains (Length >= 2)')
@@ -309,4 +321,3 @@ fig.suptitle('Mar 2003 to Feb 2004 (inclusive)')
 fig.tight_layout(pad=1)
 # %%
 
-# %%
