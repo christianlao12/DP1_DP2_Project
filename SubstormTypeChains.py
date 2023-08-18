@@ -100,18 +100,17 @@ compchainlengths = (complastdf.index.to_numpy() - comp1stdf.index.to_numpy()) + 
 
 # %% Finding longest Isolated chain
 
-index_max_iso = np.where(isochainlengths==np.max(isochainlengths))[0]
+index_max_iso = np.where(isochainlengths==np.max(isochainlengths))[0][0]
 expansiondf.loc[first_iso[index_max_iso]:last_iso[index_max_iso]]
 # iso1stdf.iloc[7537]
 # isolastdf.iloc[7537]
 
 # %% Finding longest Compound chain
 
-index_max_comp = np.where(compchainlengths==np.max(compchainlengths))[0]
-expansiondf.loc[first_comp[index_max_comp[1]]:+last_comp[index_max_comp[1]]]
+index_max_comp = np.where(compchainlengths==np.max(compchainlengths))[0][1]
+expansiondf.loc[first_comp[index_max_comp]:+last_comp[index_max_comp]]
 # comp1stdf.iloc[0]
 # complastdf.iloc[0]
-
 
 #%% Chain counts and densities
 isochain_len, isochain_count = np.unique(isochainlengths, return_counts=True)
@@ -207,8 +206,7 @@ ax1.hlines(0.5,0,np.max(isochainlengths),linestyles='dashed',colors='k')
 
 fig.tight_layout(pad=1)
 
-
-# %% Analysis of erer chain lengths
+# %% Plot Compound chain length transition probability
 fig, (ax, ax1) = plt.subplots(2,1,sharex=True,dpi=300)
 
 ax.bar(compchain_len,compchain_dens,yerr=compchain_dens_err,label='Number of onsets: {}, max chain length: {}'.format(len(comp_onsets),np.max(compchainlengths)))
@@ -224,11 +222,91 @@ ax1.xaxis.set_major_locator(ticker.MultipleLocator(1))
 ax1.set_xlabel("Length of repeating pattern")
 ax1.set_ylabel('Transition Probability')
 ax1.set_ylim(0,np.max(compchain_ratio)+0.1)
-ax1.fill_between(compchain_len[1:], compchain_ratio[1]-compchain_ratio_err[1], compchain_ratio[1]+compchain_ratio_err[1], alpha=0.3)
+ax1.fill_between(compchain_len[2:], compchain_ratio[1]-compchain_ratio_err[1], compchain_ratio[1]+compchain_ratio_err[1], alpha=0.3)
 ax1.hlines(0.5,0,np.max(compchainlengths),linestyles='dashed',colors='k')
 
 
 fig.tight_layout(pad=1)
 
+# %% Monthly occurence chains of length >= 2
+isochain_greq_2 = np.where(isochainlengths>=2)[0]
+isochain_greq_2_array = np.zeros(len(isochain_greq_2),dtype=int)
+
+for i in range(len(isochain_greq_2)):
+    isochain_greq_2_array[i] = iso1stdf.iloc[isochain_greq_2[i]]['Date_UTC'].month
+
+isochain_greq_2_months, isochain_greq_2_months_count = np.unique(isochain_greq_2_array, return_counts=True)
+isochain_greq_2_months_dens = isochain_greq_2_months_count/np.sum(isochain_greq_2_months_count)
+
+compchain_greq_2 = np.where(compchainlengths>=2)[0]
+compchain_greq_2_array = np.zeros(len(compchain_greq_2),dtype=int)
+
+for i in range(len(compchain_greq_2)):
+    compchain_greq_2_array[i] = comp1stdf.iloc[compchain_greq_2[i]]['Date_UTC'].month
+
+compchain_greq_2_months, compchain_greq_2_months_count = np.unique(compchain_greq_2_array, return_counts=True)
+compchain_greq_2_months_dens = compchain_greq_2_months_count/np.sum(compchain_greq_2_months_count)
+
+fig, ax = plt.subplots(2,1,dpi=300,sharex=True,sharey=True)
+
+ax[0].bar(isochain_greq_2_months,isochain_greq_2_months_dens,label='Number of onsets: {}'.format(np.sum(isochainlengths[isochain_greq_2])))
+ax[0].set_xlabel('Month')
+ax[0].set_ylabel('Probability Density')
+ax[0].set_title('Monthly occurence of First Onset of Isolated chains (Length >= 2)')
+ax[0].legend(loc='best')
+ax[0].xaxis.set_tick_params(labelbottom=True)
+ax[0].xaxis.set_major_locator(ticker.MultipleLocator(1))
+
+ax[1].bar(compchain_greq_2_months,compchain_greq_2_months_dens,color=colors[1], label='Number of onsets: {}'.format(np.sum(compchainlengths[compchain_greq_2])))
+ax[1].set_xlabel('Month')
+ax[1].set_ylabel('Probability Density')
+ax[1].set_title('Monthly occurence of First Onset of Compound chains (Length >= 2)')
+ax[1].legend(loc='best')
+
+fig.tight_layout(pad=1)
+
+# %% Monthly occurence chains of length >= 2 in Mar 2003 to Feb 2004
+
+isochain_greq_2_0304_array = []
+isochain_greq_2_0304 = []
+
+for i in range(len(isochain_greq_2)):
+    if pd.to_datetime("2003-03") <= iso1stdf.iloc[isochain_greq_2[i]]['Date_UTC'] <= pd.to_datetime("2004-03"):
+        isochain_greq_2_0304_array.append(iso1stdf.iloc[isochain_greq_2[i]]['Date_UTC'].month)
+        isochain_greq_2_0304.append(isochain_greq_2[i])
+
+isochain_greq_2_0304_months, isochain_greq_2_0304_months_count = np.unique(isochain_greq_2_0304_array, return_counts=True)
+isochain_greq_2_0304_months_dens = isochain_greq_2_0304_months_count/np.sum(isochain_greq_2_0304_months_count)
+
+compchain_greq_2_0304_array = []
+compchain_greq_2_0304 = []
+
+for i in range(len(compchain_greq_2)):
+    if pd.to_datetime("2003-03") <= comp1stdf.iloc[compchain_greq_2[i]]['Date_UTC'] <= pd.to_datetime("2004-03"):
+        compchain_greq_2_0304_array.append(comp1stdf.iloc[compchain_greq_2[i]]['Date_UTC'].month)
+        compchain_greq_2_0304.append(compchain_greq_2[i])
+
+compchain_greq_2_0304_months, compchain_greq_2_0304_months_count = np.unique(compchain_greq_2_0304_array, return_counts=True)
+compchain_greq_2_0304_months_dens = compchain_greq_2_0304_months_count/np.sum(compchain_greq_2_0304_months_count)
+
+fig, ax = plt.subplots(2,1,dpi=300,sharex=True,sharey=True)
+
+ax[0].bar(isochain_greq_2_0304_months,isochain_greq_2_0304_months_dens,label='Number of onsets: {}'.format(np.sum(isochainlengths[isochain_greq_2_0304])))
+ax[0].set_xlabel('Month')
+ax[0].set_ylabel('Probability Density')
+ax[0].set_title('Monthly occurence of First Onset of Isolated chains (Length >= 2)')
+ax[0].legend(loc='best')
+ax[0].xaxis.set_tick_params(labelbottom=True)
+ax[0].xaxis.set_major_locator(ticker.MultipleLocator(1))
+
+ax[1].bar(compchain_greq_2_0304_months,compchain_greq_2_0304_months_dens,color=colors[1], label='Number of onsets: {}'.format(np.sum(compchainlengths[compchain_greq_2_0304])))
+ax[1].set_xlabel('Month')
+ax[1].set_ylabel('Probability Density')
+ax[1].set_title('Monthly occurence of First Onset of Compound chains (Length >= 2)')
+ax[1].legend(loc='best')
+
+fig.suptitle('Mar 2003 to Feb 2004 (inclusive)')
+fig.tight_layout(pad=1)
+# %%
 
 # %%
