@@ -14,7 +14,7 @@ sophie80df['Date_UTC'] = pd.to_datetime(sophie80df['Date_UTC'])
 sophie80df = sophie80df[sophie80df['Date_UTC'].between('1996','2021')].reset_index(drop=True)
 sophie80df['Delbay'] = pd.to_numeric(sophie80df['Delbay'],errors='coerce')
 
-smedf = pd.read_csv("Data/SuperMAGData.csv")
+smedf = pd.read_csv("Data/SMEdata.txt")
 smedf['Date_UTC'] = pd.to_datetime(smedf['Date_UTC'])
 
 sawtoothdf = pd.read_csv("Data/sawtooth_events.txt", delim_whitespace=True, header=None, names=['Year','Month','Day','Hour','Minute','Second', 'Value'])
