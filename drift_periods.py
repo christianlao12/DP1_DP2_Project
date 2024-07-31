@@ -43,7 +43,7 @@ def drift_period_energy(energy_kev,pitch_angle):
     B_E = 3.11e-5
     R_E_2 = 6.378e6 ** 2
     charge = 1.6e-19
-    energy = energy_kev*1e3 * charge
+    energy = energy_kev * 1e3 * charge
     pitch_angle_rad = pitch_angle * pi/180
     const = (0.35 + 0.15 * np.sin(pitch_angle_rad)) ** -1 
     return (pi * charge * B_E * R_E_2 * const)/(3 * 6.6 * energy)
