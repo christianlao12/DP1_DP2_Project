@@ -138,7 +138,7 @@ ax.plot(sme_slice["Date_UTC"], sme_slice["SMU"], label="SMU")
 
 for index, row in sophie_slice.iloc[:-1].iterrows():
     if row["Phase"] == 1:
-        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor="green", alpha=0.2,label="Growth")
+        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor="green", alpha=0.2,label="Growth", hatch="//", edgecolor="k")
     if row["Phase"] == 2 and row["Flag"] == 0:
         if row["Isolated Onset"] == 1:
             ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor="red", alpha=0.2,label="Isolated Expansion")
