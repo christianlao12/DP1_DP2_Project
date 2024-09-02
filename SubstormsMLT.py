@@ -207,6 +207,16 @@ onsets_mlt_counts_err = 2 * np.sqrt(onsets_mlt_counts)
 onsets_mlt_dens = onsets_mlt_counts / np.sum(onsets_mlt_counts)
 onsets_mlt_dens_err = onsets_mlt_counts_err / np.sum(onsets_mlt_counts)
 
+# Substorms
+substorm_onsets_mlt = expansiondf.iloc[np.where(expansiondf["Flag"] == 0)]["MLT"].to_numpy()
+
+substorm_onsets_mlt_counts, substorm_onsets_mlt_bins = np.histogram(substorm_onsets_mlt, bins=np.arange(0, 25))
+substorm_onsets_mlt_bins = substorm_onsets_mlt_bins[:-1]
+substorm_onsets_mlt_counts = [*substorm_onsets_mlt_counts[12:], *substorm_onsets_mlt_counts[:12]]
+substorm_onsets_mlt_counts_err = 2 * np.sqrt(substorm_onsets_mlt_counts)
+substorm_onsets_mlt_dens = substorm_onsets_mlt_counts / np.sum(substorm_onsets_mlt_counts)
+substorm_onsets_mlt_dens_err = substorm_onsets_mlt_counts_err / np.sum(substorm_onsets_mlt_counts)
+
 # Isolated
 isolated_onsets_mlt = iso_onsets["MLT"].to_numpy()
 
@@ -377,9 +387,7 @@ n_substorm_after_convec = 0
 
 for i in range(len(onsets_after_convec)):
     dist = np.array(dp1_dens) * i + np.array(dp2_dens) * (len(onsets_after_convec) - i)
-    chi_sq = chi_squared_test(
-        after_convec_mlt_counts, dist, after_convec_mlt_counts_err
-    )
+    chi_sq = chi_squared_test(after_convec_mlt_counts, dist, after_convec_mlt_counts_err)
     if chi_sq < chi_after_convec:
         chi_after_convec = chi_sq
         n_substorm_after_convec = i
@@ -437,6 +445,12 @@ ax.plot(
     total_mlt_counts,
     color=colormap[0],
     label="Total: No. of onsets: {}".format(np.sum(total_mlt_counts)),
+)
+ax.plot(
+    np.arange(24) + 0.5,
+    frey_mlt_counts,
+    color=colormap[6],
+    label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
 )
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
@@ -568,8 +582,11 @@ ax.plot(
     np.arange(24) + 0.5,
     n_convec_iso * dp2_dens,
     color=colormap[8],
-    label="DP2 contribution",
+    label="DP2 contribution"
+   
 )
+ax.text(s=f"Chi-squared: {chi_iso}",x=0.025,y=0.95,transform=ax.transAxes,)
+
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
@@ -610,6 +627,7 @@ ax.plot(
     color=colormap[8],
     label="DP2 contribution",
 )
+ax.text(s=f"Chi-squared: {chi_comp}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
@@ -650,6 +668,7 @@ ax.plot(
     color=colormap[8],
     label="DP2 contribution",
 )
+ax.text(s=f"Chi-squared: {chi_after_convec}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
@@ -690,6 +709,7 @@ ax.plot(
     color=colormap[8],
     label="DP2 contribution",
 )
+ax.text(s=f"Chi-squared: {chi_geg}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
@@ -718,3 +738,42 @@ print(f"Number of DP1: {dp1} ({dp1/nevents:.2f}%)")
 print(f"Number of DP2: {dp2} ({dp2/nevents:.2f}%)")
 print(dp1 + dp2 == nevents)
 
+
+# %%
+fig, ax = plt.subplots(dpi=300)
+
+ax.plot(
+    np.arange(24) + 0.5,
+    onsets_mlt_counts,
+    label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),
+)
+ax.plot(
+    np.arange(24) + 0.5,
+    substorm_onsets_mlt_counts,
+    label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),
+)
+ax.plot(
+    np.arange(24) + 0.5,
+    newell_mlt_counts,
+    label="Newell & Gjerloev 2011: No. of onsets: {}".format(len(newelldf)),
+    ls="-.",
+)
+ax.plot(
+    np.arange(24) + 0.5,
+    ohtani_mlt_counts,
+    label="Ohtani & Gjerloev 2020: No. of onsets: {}".format(len(ohtanidf)),
+    ls="-.",
+)
+ax.plot(
+    np.arange(24) + 0.5,
+    frey_mlt_counts,
+    label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
+    ls="-.",
+)
+ax.set_xlabel("MLT")
+ax.set_ylabel("Counts")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
+
+# %%

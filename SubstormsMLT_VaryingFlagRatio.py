@@ -162,7 +162,6 @@ sophiedf_smu10 = sophiedf_smu10[
 # %% SOPHIE Phases
 # Onset types
 
-
 # Function to process SOPHIE data
 def process_sophiedf(sophiedf):
     # Isolated Onsets
@@ -565,7 +564,6 @@ def decompositionfunc(iso_counts, convec_mlt, iso_err):
         n_convec_iso,
     )
 
-
 # Fitting function for other distributions
 def fit_substorm_convec(observed_dist, dist_uncertainty, len):
     observed_dist = np.array(observed_dist)
@@ -667,7 +665,6 @@ bins = list(map(str, bins))
     geg_mlt_dens_err,
 ) = mlt_distribution(gegdf_smu_1)
 
-
 # Fitting
 # Decomposition
 (
@@ -697,78 +694,10 @@ fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
     iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
 )
 
-fig, ax = plt.subplots(dpi=300)
-
-ax.plot(
-    np.arange(24) + 0.5,
-    iso_mlt_counts,
-    color=colormap[1],
-    label=f"Isolated Onsets: {iso_onsets_mlt.size}",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    fit_hist_iso,
-    color=colormap[6],
-    ls="--",
-    label="Fitted Isolated:",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    n_substorm_iso * np.array(substorm_fit_dens),
-    color=colormap[7],
-    label=f"DP1 Contribution: {n_substorm_iso}",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    n_convec_iso * np.array(convec_fit_dens),
-    color=colormap[8],
-    label=f"DP2 Contribution: {n_convec_iso}",
-)
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-fig.tight_layout(pad=1)
-
 # Compound Fitting
 fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
     comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
 )
-
-fig, ax = plt.subplots(dpi=300)
-
-ax.plot(
-    np.arange(24) + 0.5,
-    comp_mlt_counts,
-    color=colormap[2],
-    label=f"Compound Onsets: {comp_onsets_mlt.size}",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    fit_hist_comp,
-    color=colormap[6],
-    ls="--",
-    label="Fitted Compound:",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    n_substorm_comp * np.array(substorm_fit_dens),
-    color=colormap[7],
-    label=f"DP1 Contribution: {n_substorm_comp}",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    n_convec_comp * np.array(convec_fit_dens),
-    color=colormap[8],
-    label=f"DP2 Contribution: {n_convec_comp}",
-)
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-fig.tight_layout(pad=1)
 
 # After Convection Expansion Fitting
 fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
@@ -777,40 +706,6 @@ fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
     )
 )
 
-fig, ax = plt.subplots(dpi=300)
-
-ax.plot(
-    np.arange(24) + 0.5,
-    after_convec_mlt_counts,
-    color=colormap[4],
-    label=f"After Convection Expansion Onsets: {after_convec_mlt.size}",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    fit_hist_after_convec,
-    color=colormap[6],
-    ls="--",
-    label="Fitted After Convection Expansion:",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    n_substorm_after_convec * np.array(substorm_fit_dens),
-    color=colormap[7],
-    label=f"DP1 Contribution: {n_substorm_after_convec}",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    n_convec_after_convec * np.array(convec_fit_dens),
-    color=colormap[8],
-    label=f"DP2 Contribution: {n_convec_after_convec}",
-)
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-fig.tight_layout(pad=1)
-
 # GEG Expansion Fitting
 fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
     geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
@@ -818,45 +713,13 @@ fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
 
 fig, ax = plt.subplots(dpi=300)
 
-ax.plot(
-    np.arange(24) + 0.5,
-    geg_mlt_counts,
-    color=colormap[5],
-    label=f"GEG Expansion Onsets: {geg_mlt.size}",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    fit_hist_geg,
-    color=colormap[6],
-    ls="--",
-    label="Fitted GEG Expansion:",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    n_substorm_geg * np.array(substorm_fit_dens),
-    color=colormap[7],
-    label=f"DP1 Contribution: {n_substorm_geg}",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    n_convec_geg * np.array(convec_fit_dens),
-    color=colormap[8],
-    label=f"DP2 Contribution: {n_convec_geg}",
-)
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-fig.tight_layout(pad=1)
-
-
 n_onsets_smu_1 = onsets_mlt.size
 n_substorms_smu_1 = (
     n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
 )
 n_substorms_orig_smu_1 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_1 = convec_onsets_mlt.size
+iso_mlt_counts_smu_1 = iso_mlt_counts 
 
 # %%
 # SOPHIE SMU Threshold 2
@@ -942,6 +805,7 @@ ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 fig.tight_layout(pad=1)
+
 # Isolated Fitting
 fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
     iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
@@ -952,7 +816,6 @@ fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
 fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
     comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
 )
-
 
 # After Convection Expansion Fitting
 fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
@@ -966,13 +829,13 @@ fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
     geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
 )
 
-
 n_onsets_smu_2 = onsets_mlt.size
 n_substorms_smu_2 = (
     n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
 )
 n_substorms_orig_smu_2 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_2 = convec_onsets_mlt.size
+iso_mlt_counts_smu_2 = iso_mlt_counts
 
 # %%
 # SOPHIE SMU Threshold 3
@@ -1086,6 +949,7 @@ n_substorms_smu_3 = (
 )
 n_substorms_orig_smu_3 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_3 = convec_onsets_mlt.size
+iso_mlt_counts_smu_3 = iso_mlt_counts
 
 # %% SOPHIE SMU Threshold 4
 # MLT Distributions
@@ -1193,6 +1057,7 @@ n_substorms_smu_4 = (
 )
 n_substorms_orig_smu_4 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_4 = convec_onsets_mlt.size
+iso_mlt_counts_smu_4 = iso_mlt_counts
 
 # %% SOPHIE SMU Threshhold 5
 # MLT Distributions
@@ -1306,6 +1171,7 @@ n_substorms_smu_5 = (
 )
 n_substorms_orig_smu_5 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_5 = convec_onsets_mlt.size
+iso_mlt_counts_smu_5 = iso_mlt_counts
 
 # %% SOPHIE SMU Threshhold 6
 # MLT Distributions
@@ -1419,6 +1285,7 @@ n_substorms_smu_6 = (
 )
 n_substorms_orig_smu_6 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_6 = convec_onsets_mlt.size
+iso_mlt_counts_smu_6 = iso_mlt_counts
 
 # %% SOPHIE SMU Threshhold 7
 # MLT Distributions
@@ -1527,6 +1394,7 @@ n_substorms_smu_7 = (
 )
 n_substorms_orig_smu_7 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_7 = convec_onsets_mlt.size
+iso_mlt_counts_smu_7 = iso_mlt_counts
 
 # %% SOPHIE SMU Threshhold 8
 # MLT Distributions
@@ -1628,6 +1496,7 @@ n_substorms_smu_8 = (
 )
 n_substorms_orig_smu_8 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_8 = convec_onsets_mlt.size
+iso_mlt_counts_smu_8 = iso_mlt_counts
 
 # %% SOPHIE SMU Threshhold 9
 # MLT Distributions
@@ -1729,6 +1598,7 @@ n_substorms_smu_9 = (
 )
 n_substorms_orig_smu_9 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_9 = convec_onsets_mlt.size
+iso_mlt_counts_smu_9 = iso_mlt_counts
 
 # %% SOPHIE SMU Threshhold 10
 # MLT Distributions
@@ -1830,6 +1700,7 @@ n_substorms_smu_10 = (
 )
 n_substorms_orig_smu_10 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_10 = convec_onsets_mlt.size
+iso_mlt_counts_smu_10 = iso_mlt_counts
 
 # %%
 # Number of Substorms vs Threshold
@@ -1975,6 +1846,32 @@ ax.set_xticks(np.arange(1, 11))
 ax.set_xlabel("SML/SMU Ratio Threshold")
 ax.set_ylabel("Ratio of Original to Fitted Substorms")
 ax.legend(loc="best")
+
+fig.tight_layout(pad=1)
+
+iso_mlt_counts_all_thresh = [
+    iso_mlt_counts_smu_1,
+    iso_mlt_counts_smu_2,
+    iso_mlt_counts_smu_3,
+    iso_mlt_counts_smu_4,
+    iso_mlt_counts_smu_5,
+    iso_mlt_counts_smu_6,
+    iso_mlt_counts_smu_7,
+    iso_mlt_counts_smu_8,
+    iso_mlt_counts_smu_9,
+    iso_mlt_counts_smu_10,
+]
+
+
+fig, ax = plt.subplots(dpi=300)
+
+for i, val in enumerate(iso_mlt_counts_all_thresh):
+    ax.plot(np.arange(24) + 0.5, val, label=f"Threshold {i+1}")
+ax.set_xlabel("MLT")
+ax.set_ylabel("Counts")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1), ncol=2)
 
 fig.tight_layout(pad=1)
 
