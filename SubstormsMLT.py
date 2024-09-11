@@ -8,13 +8,13 @@ from collections import Counter
 from scipy import stats
 import seaborn as sns
 
-sns.set_theme(
-    context="paper",
-    style="whitegrid",
-    palette="colorblind",
-)
-colormap = sns.color_palette("colorblind", as_cmap=True)
+# Housekeeping
+sns.set_theme(context="paper",style="whitegrid",palette="colorblind")
+colormap = sns.color_palette("colorblind")
 
+# Labelling of the MLT bins
+bins = list(range(12, 24)) + list(range(0, 12))
+bins = list(map(str, bins))
 
 # Function to calculate chi squared test
 def chi_squared_test(measured, model, uncertainty):
@@ -24,16 +24,14 @@ def chi_squared_test(measured, model, uncertainty):
         )
     )
 
-
 # %% Loading in Substorm Data
 
 # Loading in SOPHIE Data
 sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2021.txt")
 sophiedf["Date_UTC"] = pd.to_datetime(sophiedf["Date_UTC"])
 sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
-sophiedf = sophiedf[
-    sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")
-].reset_index(drop=True)
+sophiedf = sophiedf[sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
+sophiedf = sophiedf[sophiedf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
 if "Delbay" in sophiedf.columns:
     sophiedf.rename(columns={"Delbay": "DeltaSML"}, inplace=True)
 if "SML Val at End" in sophiedf.columns:
@@ -46,23 +44,20 @@ sophiedf["Flag"] = sophiedf["Flag"].replace(4, 0)
 sophiedf["Flag"] = sophiedf["Flag"].replace([1, 2, 3, 5, 6, 7], 1)
 
 # Loading in Frey Data
-freydf = pd.read_csv(
-    "Data/substorms-frey-20000101_000000_to_20070101_000000.csv", low_memory=False
-)
+freydf = pd.read_csv("Data/substorms-frey-20000101_000000_to_20070101_000000.csv", low_memory=False)
 freydf["Date_UTC"] = pd.to_datetime(freydf["Date_UTC"])
-fredydf = freydf[
-    freydf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")
-].reset_index(drop=True)
+fredydf = freydf[freydf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
 
 # Loading in Newell and Ohtani onsets
 newelldf = pd.read_csv("Data/NewellSubstorms_1997_2022.csv")
 newelldf["Date_UTC"] = pd.to_datetime(newelldf["Date_UTC"])
 newelldf = newelldf[newelldf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
-
+newelldf = newelldf[newelldf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
 
 ohtanidf = pd.read_csv("Data/OhtaniSubstorms_1997_2022.csv")
 ohtanidf["Date_UTC"] = pd.to_datetime(ohtanidf["Date_UTC"])
 ohtanidf = ohtanidf[ohtanidf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
+ohtanidf = ohtanidf[ohtanidf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
 
 # %% SOPHIE Phases
 
@@ -306,9 +301,145 @@ ohtani_mlt_counts_err = 2 * np.sqrt(ohtani_mlt_counts)
 ohtani_mlt_dens = ohtani_mlt_counts / np.sum(ohtani_mlt_counts)
 ohtani_mlt_dens_err = ohtani_mlt_counts_err / np.sum(ohtani_mlt_counts)
 
+# %% Plotting Different Onset List MLT Distributions
+fig, ax = plt.subplots(dpi=300)
+
+ax.plot(
+    np.arange(24) + 0.5,
+    onsets_mlt_counts,
+    label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),
+)
+ax.plot(
+    np.arange(24) + 0.5,
+    substorm_onsets_mlt_counts,
+    label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),
+)
+ax.plot(
+    np.arange(24) + 0.5,
+    newell_mlt_counts,
+    label="Newell & Gjerloev 2011: No. of onsets: {}".format(len(newelldf)),
+    ls="-.",
+)
+ax.plot(
+    np.arange(24) + 0.5,
+    ohtani_mlt_counts,
+    label="Ohtani & Gjerloev 2020: No. of onsets: {}".format(len(ohtanidf)),
+    ls="-.",
+)
+ax.plot(
+    np.arange(24) + 0.5,
+    frey_mlt_counts,
+    label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
+    ls=":",
+)
+ax.set_xlabel("MLT")
+ax.set_ylabel("Counts")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
+
+# %% Plotting Different Onset List MLT Distributions v2
+fig, ax = plt.subplots(dpi=300)
+
+ax.bar(
+    np.arange(24) + 0.5,
+    onsets_mlt_counts,
+    label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),
+    color='none',
+    edgecolor=colormap[0],
+)
+ax.bar(
+    np.arange(24) + 0.5,
+    substorm_onsets_mlt_counts,
+    label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),
+    color='none',
+    edgecolor=colormap[1],
+)
+ax.bar(
+    np.arange(24) + 0.5,
+    newell_mlt_counts,
+    label="Newell & Gjerloev 2011: No. of onsets: {}".format(len(newelldf)),
+    color='none',
+    edgecolor=colormap[2],
+)
+ax.bar(
+    np.arange(24) + 0.5,
+    ohtani_mlt_counts,
+    label="Ohtani & Gjerloev 2020: No. of onsets: {}".format(len(ohtanidf)),
+    color='none',
+    edgecolor=colormap[3],
+)
+ax.bar(
+    np.arange(24) + 0.5,
+    frey_mlt_counts,
+    label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
+    color='none',
+    edgecolor=colormap[4],
+)
+ax.set_xlabel("MLT")
+ax.set_ylabel("Counts")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
+
+# %% Plotting Different Onset List MLT Distributions v2.5
+fig, ax = plt.subplots(dpi=300)
+
+ax.bar(
+    np.arange(24) + 0.5,
+    onsets_mlt_counts,
+    label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),    
+)
+ax.bar(
+    np.arange(24) + 0.5,
+    substorm_onsets_mlt_counts,
+    bottom=onsets_mlt_counts,
+    label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),
+)
+ax.bar(
+    np.arange(24) + 0.5,
+    newell_mlt_counts,
+    bottom=np.array(onsets_mlt_counts) + np.array(substorm_onsets_mlt_counts),
+    label="Newell & Gjerloev 2011: No. of onsets: {}".format(len(newelldf)),
+)
+ax.bar(
+    np.arange(24) + 0.5,
+    ohtani_mlt_counts,
+    bottom=np.array(onsets_mlt_counts) + np.array(substorm_onsets_mlt_counts) + np.array(newell_mlt_counts),
+    label="Ohtani & Gjerloev 2020: No. of onsets: {}".format(len(ohtanidf)),
+)
+ax.bar(
+    np.arange(24) + 0.5,
+    frey_mlt_counts,
+    bottom=np.array(onsets_mlt_counts) + np.array(substorm_onsets_mlt_counts) + np.array(newell_mlt_counts) + np.array(ohtani_mlt_counts),
+    label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
+)
+ax.set_xlabel("MLT")
+ax.set_ylabel("Counts")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
+
+# %% Plotting Different Onset List MLT Distributions v3
+counts = [onsets_mlt_counts, substorm_onsets_mlt_counts, newell_mlt_counts, ohtani_mlt_counts, frey_mlt_counts]
+labels = ["All SOPHIE Events", "SOPHIE Substorms", "Newell & Gjerloev, 2011", "Ohtani & Gjerloev, 2020", "Frey et al., 2004"]
+x = np.arange(24)-.3
+width = 0.15
+multiplier = 0
+
+fig, ax = plt.subplots(dpi=300)
+for i, val in enumerate(counts):
+    offset = width * multiplier
+    rects = ax.bar(x + offset, val, width=width, label=labels[i], color=colormap[i])
+    multiplier += 1
+
+ax.set_xlabel("MLT")
+ax.set_ylabel("Counts")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 # %% Fitting MLT distributions
-# Fitting
 
 # Fitting Isolated 3-18 MLT from Convection distribution
 iso_mlt_counts_3_18 = [*iso_mlt_counts[:7], *iso_mlt_counts[15:]]
@@ -414,10 +545,6 @@ fit_geg_dens = fit_geg / np.sum(fit_geg)
 n_convec_geg = len(gegdf) - n_substorm_geg
 
 # %% Plotting Known distributions
-
-# Labelling of the MLT bins
-bins = list(range(12, 24)) + list(range(0, 12))
-bins = list(map(str, bins))
 
 # Plotting Histograms (Isolated, Compound, Convection Expansion, Total)
 fig, ax = plt.subplots(dpi=300)
@@ -738,42 +865,5 @@ print(f"Number of DP1: {dp1} ({dp1/nevents:.2f}%)")
 print(f"Number of DP2: {dp2} ({dp2/nevents:.2f}%)")
 print(dp1 + dp2 == nevents)
 
-
-# %%
-fig, ax = plt.subplots(dpi=300)
-
-ax.plot(
-    np.arange(24) + 0.5,
-    onsets_mlt_counts,
-    label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    substorm_onsets_mlt_counts,
-    label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    newell_mlt_counts,
-    label="Newell & Gjerloev 2011: No. of onsets: {}".format(len(newelldf)),
-    ls="-.",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    ohtani_mlt_counts,
-    label="Ohtani & Gjerloev 2020: No. of onsets: {}".format(len(ohtanidf)),
-    ls="-.",
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    frey_mlt_counts,
-    label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
-    ls="-.",
-)
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 # %%
