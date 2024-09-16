@@ -7,6 +7,7 @@ from matplotlib.dates import DateFormatter
 from collections import Counter
 from scipy import stats
 import seaborn as sns
+from scipy.stats import cramervonmises_2samp
 
 # Housekeeping
 sns.set_theme(context="paper",style="whitegrid",palette="colorblind")
@@ -31,7 +32,7 @@ sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2021.txt")
 sophiedf["Date_UTC"] = pd.to_datetime(sophiedf["Date_UTC"])
 sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
 sophiedf = sophiedf[sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
-sophiedf = sophiedf[sophiedf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
+# sophiedf = sophiedf[sophiedf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
 if "Delbay" in sophiedf.columns:
     sophiedf.rename(columns={"Delbay": "DeltaSML"}, inplace=True)
 if "SML Val at End" in sophiedf.columns:
@@ -52,12 +53,12 @@ fredydf = freydf[freydf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusiv
 newelldf = pd.read_csv("Data/NewellSubstorms_1997_2022.csv")
 newelldf["Date_UTC"] = pd.to_datetime(newelldf["Date_UTC"])
 newelldf = newelldf[newelldf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
-newelldf = newelldf[newelldf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
+# newelldf = newelldf[newelldf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
 
 ohtanidf = pd.read_csv("Data/OhtaniSubstorms_1997_2022.csv")
 ohtanidf["Date_UTC"] = pd.to_datetime(ohtanidf["Date_UTC"])
 ohtanidf = ohtanidf[ohtanidf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
-ohtanidf = ohtanidf[ohtanidf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
+# ohtanidf = ohtanidf[ohtanidf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
 
 # %% SOPHIE Phases
 
@@ -139,9 +140,7 @@ expansiondf = sophiedf.iloc[np.where(sophiedf["Phase"] == 2)].reset_index(drop=T
 convec_expansiondf = expansiondf.iloc[np.where(expansiondf["Flag"] == 1)]
 
 # Isolated Chains
-isolated = np.intersect1d(
-    np.where(expansiondf["Isolated Onset"] == 1), np.where(expansiondf["NewFlag"] == 0)
-)
+isolated = np.intersect1d(np.where(expansiondf["Isolated Onset"] == 1), np.where(expansiondf["NewFlag"] == 0))
 iso_onsets = expansiondf.iloc[isolated]
 
 array_iso = np.zeros(len(expansiondf))
@@ -155,9 +154,7 @@ isolastdf = expansiondf.iloc[last_iso]
 isochains = (isolastdf.index.to_numpy() - iso1stdf.index.to_numpy()) + 1
 
 # Compound Chains
-compound = np.intersect1d(
-    np.where(expansiondf["Compound Onset"] == 1), np.where(expansiondf["NewFlag"] == 0)
-)
+compound = np.intersect1d(np.where(expansiondf["Compound Onset"] == 1), np.where(expansiondf["NewFlag"] == 0))
 comp_onsets = expansiondf.iloc[compound]
 
 array_comp = np.zeros(len(expansiondf))
@@ -175,9 +172,7 @@ compchains_convec = compchains[np.where(complastdf["OnsetBeforeConvection"] == 1
 
 after_convec = np.intersect1d(
     np.where(expansiondf["Phase"] == 2),
-    np.setdiff1d(
-        np.where(expansiondf["NewFlag"] == 1)[0], np.where(expansiondf["Flag"] == 1)[0]
-    ),
+    np.setdiff1d(np.where(expansiondf["NewFlag"] == 1)[0], np.where(expansiondf["Flag"] == 1)[0]),
 )
 onsets_after_convec = expansiondf.iloc[after_convec]
 
@@ -308,11 +303,13 @@ ax.plot(
     np.arange(24) + 0.5,
     onsets_mlt_counts,
     label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),
+    alpha = 0.75
 )
 ax.plot(
     np.arange(24) + 0.5,
     substorm_onsets_mlt_counts,
     label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),
+    alpha = 0.75
 )
 ax.plot(
     np.arange(24) + 0.5,
@@ -330,7 +327,7 @@ ax.plot(
     np.arange(24) + 0.5,
     frey_mlt_counts,
     label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
-    ls=":",
+    ls="-.",
 )
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
@@ -345,36 +342,36 @@ ax.bar(
     np.arange(24) + 0.5,
     onsets_mlt_counts,
     label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),
-    color='none',
-    edgecolor=colormap[0],
+    color=colormap[0],
+    alpha = 0.45
 )
 ax.bar(
     np.arange(24) + 0.5,
     substorm_onsets_mlt_counts,
     label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),
-    color='none',
-    edgecolor=colormap[1],
+    color=colormap[1],
+    alpha = 0.45
 )
 ax.bar(
     np.arange(24) + 0.5,
     newell_mlt_counts,
     label="Newell & Gjerloev 2011: No. of onsets: {}".format(len(newelldf)),
-    color='none',
-    edgecolor=colormap[2],
+    color=colormap[2],
+    alpha = 0.45
 )
 ax.bar(
     np.arange(24) + 0.5,
     ohtani_mlt_counts,
     label="Ohtani & Gjerloev 2020: No. of onsets: {}".format(len(ohtanidf)),
-    color='none',
-    edgecolor=colormap[3],
+    color=colormap[3],
+    alpha = 0.45
 )
 ax.bar(
     np.arange(24) + 0.5,
     frey_mlt_counts,
     label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
-    color='none',
-    edgecolor=colormap[4],
+    color=colormap[6],
+    alpha = 0.45
 )
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
@@ -681,6 +678,7 @@ ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 # Plotting Isolated fit from (Isolated - Convection) and Convection
 
+cvm_iso = cramervonmises_2samp(iso_mlt_counts, fit_iso).statistic
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(
@@ -712,7 +710,7 @@ ax.plot(
     label="DP2 contribution"
    
 )
-ax.text(s=f"Chi-squared: {chi_iso}",x=0.025,y=0.95,transform=ax.transAxes,)
+ax.text(s=f"Cramer-von Mises Goodness of Fit: {cvm_iso:.3f}",x=0.025,y=0.95,transform=ax.transAxes,)
 
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
@@ -724,6 +722,7 @@ fig.tight_layout(pad=1)
 
 # Plotting Compound fit from (Isolated - Convection) and Convection
 
+cvm_comp = cramervonmises_2samp(comp_mlt_counts, fit_comp).statistic
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(
@@ -754,7 +753,7 @@ ax.plot(
     color=colormap[8],
     label="DP2 contribution",
 )
-ax.text(s=f"Chi-squared: {chi_comp}",x=0.025,y=0.95,transform=ax.transAxes,)
+ax.text(s=f"Cramer-von Mises Goodness of Fit: {cvm_comp:.3f}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
@@ -765,6 +764,7 @@ fig.tight_layout(pad=1)
 
 # Plotting After Convection fit from (Isolated - Convection) and Convection
 
+cvm_after_convec = cramervonmises_2samp(after_convec_mlt_counts, fit_after_convec).statistic
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(
@@ -795,7 +795,7 @@ ax.plot(
     color=colormap[8],
     label="DP2 contribution",
 )
-ax.text(s=f"Chi-squared: {chi_after_convec}",x=0.025,y=0.95,transform=ax.transAxes,)
+ax.text(s=f"Cramer-von Mises Goodness of Fit: {cvm_after_convec:.3f}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
@@ -806,6 +806,7 @@ fig.tight_layout(pad=1)
 
 # Plotting GEG fit from (Isolated - Convection) and Convection
 
+cvm_geg = cramervonmises_2samp(geg_mlt_counts, fit_geg).statistic
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(
@@ -836,7 +837,7 @@ ax.plot(
     color=colormap[8],
     label="DP2 contribution",
 )
-ax.text(s=f"Chi-squared: {chi_geg}",x=0.025,y=0.95,transform=ax.transAxes,)
+ax.text(s=f"Cramer-von Mises Goodness of Fit: {cvm_geg:.3f}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
@@ -864,6 +865,5 @@ print(f"Number of events: {nevents}")
 print(f"Number of DP1: {dp1} ({dp1/nevents:.2f}%)")
 print(f"Number of DP2: {dp2} ({dp2/nevents:.2f}%)")
 print(dp1 + dp2 == nevents)
-
 
 # %%
