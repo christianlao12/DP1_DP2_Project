@@ -2,10 +2,6 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import ticker, colors
-from matplotlib.dates import DateFormatter
-from collections import Counter
-from scipy import stats
 import seaborn as sns
 from scipy.stats import cramervonmises_2samp
 
@@ -139,43 +135,22 @@ expansiondf = sophiedf.iloc[np.where(sophiedf["Phase"] == 2)].reset_index(drop=T
 # Only Convection Expansions
 convec_expansiondf = expansiondf.iloc[np.where(expansiondf["Flag"] == 1)]
 
-# Isolated Chains
+# Isolated Onsets
 isolated = np.intersect1d(np.where(expansiondf["Isolated Onset"] == 1), np.where(expansiondf["NewFlag"] == 0))
 iso_onsets = expansiondf.iloc[isolated]
 
-array_iso = np.zeros(len(expansiondf))
-array_iso[isolated] = True
-first_iso = np.where(np.diff(array_iso) == 1)[0] + 1
-last_iso = np.where(np.diff(array_iso) == -1)[0]
-first_iso = np.append(0, first_iso)
-# last_iso = np.append(last_iso,len(expansiondf)-1)
-iso1stdf = expansiondf.iloc[first_iso]
-isolastdf = expansiondf.iloc[last_iso]
-isochains = (isolastdf.index.to_numpy() - iso1stdf.index.to_numpy()) + 1
-
-# Compound Chains
+# Compound Onsets
 compound = np.intersect1d(np.where(expansiondf["Compound Onset"] == 1), np.where(expansiondf["NewFlag"] == 0))
 comp_onsets = expansiondf.iloc[compound]
 
-array_comp = np.zeros(len(expansiondf))
-array_comp[compound] = True
-first_comp = np.where(np.diff(array_comp) == 1)[0] + 1
-last_comp = np.where(np.diff(array_comp) == -1)[0]
-# first_comp = first_comp[:-1]
-# last_comp = np.append(last_comp,len(expansiondf)-1)
-comp1stdf = expansiondf.iloc[first_comp]
-subseq_comp = expansiondf.iloc[np.setdiff1d(compound, first_comp)]
-complastdf = expansiondf.iloc[last_comp]
-compchains = (complastdf.index.to_numpy() - comp1stdf.index.to_numpy()) + 1
-compchains_growth = compchains[np.where(complastdf["OnsetBeforeConvection"] == 0)[0]]
-compchains_convec = compchains[np.where(complastdf["OnsetBeforeConvection"] == 1)[0]]
-
+# Onsets after convection
 after_convec = np.intersect1d(
     np.where(expansiondf["Phase"] == 2),
     np.setdiff1d(np.where(expansiondf["NewFlag"] == 1)[0], np.where(expansiondf["Flag"] == 1)[0]),
 )
 onsets_after_convec = expansiondf.iloc[after_convec]
 
+# GEG Onsets
 geg = np.setdiff1d(
     expansiondf.index.to_numpy(),
     np.union1d(

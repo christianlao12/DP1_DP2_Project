@@ -1,30 +1,22 @@
 # %% # Importing Modules
-# Importing Modules
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import dates
 import seaborn as sns
 
-sns.set_theme(
-    context="notebook",
-    style="ticks",
-    palette="colorblind",
-)
+
+# Housekeeping
+sns.set_theme(context="paper",style="whitegrid",palette="colorblind")
 colormap = sns.color_palette("colorblind")
 
-cm=1/2.54
-
 # %% Loading in Substorm Data
-# Loading in Substorm Data
 
 # Loading in SOPHIE Data
 sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2021.txt")
 sophiedf["Date_UTC"] = pd.to_datetime(sophiedf["Date_UTC"])
 sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
-sophiedf = sophiedf[
-    sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")
-].reset_index(drop=True)
+sophiedf = sophiedf[sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
 if "Delbay" in sophiedf.columns:
     sophiedf.rename(columns={"Delbay": "DeltaSML"}, inplace=True)
 if "SML Val at End" in sophiedf.columns:
@@ -36,15 +28,7 @@ sophiedf = sophiedf.loc[2:].reset_index(drop=True)
 sophiedf["Flag"] = sophiedf["Flag"].replace(4, 0)
 sophiedf["Flag"] = sophiedf["Flag"].replace([1, 2, 3, 5, 6, 7], 1)
 
-# Loading in SME Data
-smedf = pd.read_csv("Data/SMEdata.txt")
-smedf["Date_UTC"] = pd.to_datetime(smedf["Date_UTC"])
-smedf = smedf[
-    smedf["Date_UTC"].between("1997", "2020", inclusive="left")
-].reset_index(drop=True)
-
 # %% SOPHIE Phases
-# SOPHIE Phases
 
 # Isolated Onsets
 iso_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
@@ -115,51 +99,49 @@ for i in range(len(sophiedf["Date_UTC"]) - 2):
         continue
 sophiedf["OnsetBeforeConvection"] = compend_arr
 
+# %% SOPHIE Event types
+
+# Only Expansion Phases
+expansiondf = sophiedf.iloc[np.where(sophiedf["Phase"] == 2)].reset_index(drop=True)
+
+# Only Convection Expansions
+convec_expansiondf = expansiondf.iloc[np.where(expansiondf["Flag"] == 1)]
+
+# Isolated Onsets
+isolated = np.intersect1d(np.where(expansiondf["Isolated Onset"] == 1), np.where(expansiondf["NewFlag"] == 0))
+iso_onsets = expansiondf.iloc[isolated]
+
+# Isolated Onsets flagged as convection
+iso_onsets_convec = np.intersect1d(np.where(expansiondf["Isolated Onset"] == 1), np.where(expansiondf["Flag"] == 1))
+iso_onsets_convec = expansiondf.iloc[iso_onsets_convec]
+
+# %% SOPHIE Isolated Onset at 23-00 MLT
+
+type1_onsets = iso_onsets.iloc[np.where(iso_onsets["MLT"] > 23)].reset_index(drop=True)
+type1_onsets.set_index("Date_UTC", inplace=True)
+type1_onsets = type1_onsets.between_time("02:30", "05:00")
+type1_onsets.reset_index(inplace=True)
+type1_onsets = type1_onsets[type1_onsets["Date_UTC"].between("2000-05-18", "2003", inclusive="left")].reset_index(drop=True)
+
+# %% SOPHIE Isolated Onset at 03-09 MLT
+
+type2_onsets = iso_onsets.iloc[np.intersect1d(np.where(iso_onsets["MLT"] >= 4), np.where(iso_onsets["MLT"] <= 9))].reset_index(drop=True)
+type2_onsets.set_index("Date_UTC", inplace=True)
+type2_onsets = type2_onsets.between_time("02:30", "05:00")
+type2_onsets.reset_index(inplace=True)
+type2_onsets = type2_onsets[type2_onsets["Date_UTC"].between("2000-05-18", "2003", inclusive="left")].reset_index(drop=True)
+
+# %% SOPHIE Isolated Convection Onset at 23-00 MLT
+
+type3_onsets = iso_onsets_convec.iloc[np.where(iso_onsets_convec["MLT"] > 23)].reset_index(drop=True)
+type3_onsets.set_index("Date_UTC", inplace=True)
+type3_onsets = type3_onsets.between_time("02:30", "05:00")
+type3_onsets.reset_index(inplace=True)
+# type3_onsets = type3_onsets[type3_onsets["Date_UTC"].between("2000-05-18", "2003", inclusive="left")].reset_index(drop=True)
+type3_onsets['DeltaSML'] = pd.to_numeric(type3_onsets['DeltaSML'], errors='coerce')
+type3_onsets['SMLatEnd'] = pd.to_numeric(type3_onsets['SMLatEnd'], errors='coerce')
+np.sort(np.abs(type3_onsets['SMLatEnd']) - np.abs(type3_onsets['DeltaSML']))
+
 # %%
-np.intersect1d(np.where(sophiedf["Isolated Onset"] == 1), np.where(sophiedf["NewFlag"] == 1))[0:20]
-# %%
-# Period of interest 
-start = "1997-01-10 15:30:00"
-end = "1997-01-11 03:00:00"
-
-phasesindices = sophiedf[sophiedf["Date_UTC"].between(start, end, inclusive="both")].index.to_numpy()
-phasesindices = np.concatenate(([phasesindices[0]-1],phasesindices,[phasesindices[-1]+1]))
-
-sme_slice = smedf[smedf["Date_UTC"].between(start, end, inclusive="both")].copy()
-sophie_slice = sophiedf.iloc[phasesindices].copy()
-
-# Plotting
-fig, ax = plt.subplots(dpi=300, sharex=True, figsize=(25*cm, 10*cm))
-
-ax.plot(sme_slice["Date_UTC"], sme_slice["SML"], label="SML", color=colormap[0])
-ax.plot(sme_slice["Date_UTC"], sme_slice["SMU"], label="SMU", color=colormap[1])
-
-for index, row in sophie_slice.iloc[:-1].iterrows():
-    if row["Phase"] == 1:
-        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[2], alpha=0.3,label="Growth", hatch="//", edgecolor="k")
-    if row["Phase"] == 2 and row["Flag"] == 0:
-        if row["Isolated Onset"] == 1:
-            ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[3], alpha=0.3,label="Isolated Expansion")
-        if row["Compound Onset"] == 1:
-            ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[8], alpha=0.3,label="Compound Expansion")
-    if row["Phase"] == 3 and row["Flag"] == 0:
-        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[9], alpha=0.3,label="Recovery")
-    if row["Flag"] == 1:
-        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor="k", alpha=0.3,label="Convection Interval")
-
-ax.set_xlabel("Time (UTC)")
-ax.set_ylabel("SME (U\L) (nT)")
-ax.set_xlim(pd.to_datetime(start), pd.to_datetime(end))
-ax.xaxis.set_minor_locator(dates.MinuteLocator(interval=30))
-ax.xaxis.set_major_locator(dates.HourLocator(interval=2))
-ax.xaxis.set_major_formatter(dates.DateFormatter("%d/%m/%Y\n%H:%M"))
-
-handles, labels = ax.get_legend_handles_labels()
-
-handles = [handles[i] for i in sorted(labels.index(elem) for elem in set(labels))]
-labels = [labels[i] for i in sorted(labels.index(elem) for elem in set(labels))]
-
-ax.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 1))
-
-sophie_slice
+type3_onsets
 # %%
