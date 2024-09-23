@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib import dates
 import seaborn as sns
 
-
 # Housekeeping
 sns.set_theme(context="paper",style="whitegrid",palette="colorblind")
 colormap = sns.color_palette("colorblind")
@@ -15,13 +14,12 @@ colormap = sns.color_palette("colorblind")
 # Loading in SOPHIE Data
 sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2021.txt")
 sophiedf["Date_UTC"] = pd.to_datetime(sophiedf["Date_UTC"])
-sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
+sophiedf["Phase Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
 sophiedf = sophiedf[sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
 if "Delbay" in sophiedf.columns:
     sophiedf.rename(columns={"Delbay": "DeltaSML"}, inplace=True)
 if "SML Val at End" in sophiedf.columns:
     sophiedf.rename(columns={"SML Val at End": "SMLatEnd"}, inplace=True)
-
 sophiedf["DeltaSML"] = pd.to_numeric(sophiedf["DeltaSML"], errors="coerce")
 sophiedf = sophiedf.loc[2:].reset_index(drop=True)
 
@@ -123,7 +121,7 @@ type1_onsets = type1_onsets.between_time("02:30", "05:00")
 type1_onsets.reset_index(inplace=True)
 type1_onsets = type1_onsets[type1_onsets["Date_UTC"].between("2000-05-18", "2003", inclusive="left")].reset_index(drop=True)
 
-# %% SOPHIE Isolated Onset at 03-09 MLT
+# %% SOPHIE Isolated Onset at 04-09 MLT
 
 type2_onsets = iso_onsets.iloc[np.intersect1d(np.where(iso_onsets["MLT"] >= 4), np.where(iso_onsets["MLT"] <= 9))].reset_index(drop=True)
 type2_onsets.set_index("Date_UTC", inplace=True)
@@ -142,6 +140,19 @@ type3_onsets['DeltaSML'] = pd.to_numeric(type3_onsets['DeltaSML'], errors='coerc
 type3_onsets['SMLatEnd'] = pd.to_numeric(type3_onsets['SMLatEnd'], errors='coerce')
 np.sort(np.abs(type3_onsets['SMLatEnd']) - np.abs(type3_onsets['DeltaSML']))
 
-# %%
-type3_onsets
+# %% Data for Dovile
+
+# Isolated Onsets
+event1_id = np.intersect1d(np.where(sophiedf["MLT"] >= 23),np.intersect1d(np.where(sophiedf["Isolated Onset"]==1),np.where(sophiedf["Flag"]==0)))
+starttimes = sophiedf.iloc[event1_id]["Date_UTC"].to_numpy()
+endtimes = sophiedf.iloc[event1_id+2]['Date_UTC'].to_numpy()
+df = pd.DataFrame({"Start": starttimes, "End": endtimes})
+# df.to_csv("Outputs/SubstormEventTimes.csv", index=True)
+
+# Convection Onsets
+event2_id = np.intersect1d(np.where(sophiedf["Isolated Onset"]==1),np.where(sophiedf["Flag"]==1))
+starttimes = sophiedf.iloc[event2_id]["Date_UTC"].to_numpy()
+endtimes = sophiedf.iloc[event2_id+2]['Date_UTC'].to_numpy()
+df = pd.DataFrame({"Start": starttimes, "End": endtimes})
+# df.to_csv("Outputs/ConvectionEventTimes.csv", index=True)
 # %%

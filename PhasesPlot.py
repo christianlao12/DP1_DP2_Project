@@ -21,17 +21,15 @@ cm=1/2.54
 # Loading in SOPHIE Data
 sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2021.txt")
 sophiedf["Date_UTC"] = pd.to_datetime(sophiedf["Date_UTC"])
-sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
-sophiedf = sophiedf[
-    sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")
-].reset_index(drop=True)
+# sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
+sophiedf = sophiedf[sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
 if "Delbay" in sophiedf.columns:
     sophiedf.rename(columns={"Delbay": "DeltaSML"}, inplace=True)
 if "SML Val at End" in sophiedf.columns:
     sophiedf.rename(columns={"SML Val at End": "SMLatEnd"}, inplace=True)
 
 sophiedf["DeltaSML"] = pd.to_numeric(sophiedf["DeltaSML"], errors="coerce")
-sophiedf = sophiedf.loc[2:].reset_index(drop=True)
+sophiedf = sophiedf.loc[1:].reset_index(drop=True)
 
 sophiedf["Flag"] = sophiedf["Flag"].replace(4, 0)
 sophiedf["Flag"] = sophiedf["Flag"].replace([1, 2, 3, 5, 6, 7], 1)
@@ -39,9 +37,7 @@ sophiedf["Flag"] = sophiedf["Flag"].replace([1, 2, 3, 5, 6, 7], 1)
 # Loading in SME Data
 smedf = pd.read_csv("Data/SMEdata.txt")
 smedf["Date_UTC"] = pd.to_datetime(smedf["Date_UTC"])
-smedf = smedf[
-    smedf["Date_UTC"].between("1997", "2020", inclusive="left")
-].reset_index(drop=True)
+smedf = smedf[smedf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
 
 # %% SOPHIE Phases
 # SOPHIE Phases
@@ -119,8 +115,8 @@ sophiedf["OnsetBeforeConvection"] = compend_arr
 np.intersect1d(np.where(sophiedf["Isolated Onset"] == 1), np.where(sophiedf["NewFlag"] == 1))[0:20]
 # %%
 # Period of interest 
-start = "1997-01-10 15:30:00"
-end = "1997-01-11 03:00:00"
+start = "2001-08-12 02:00"
+end = "2001-08-12 06:00"
 
 phasesindices = sophiedf[sophiedf["Date_UTC"].between(start, end, inclusive="both")].index.to_numpy()
 phasesindices = np.concatenate(([phasesindices[0]-1],phasesindices,[phasesindices[-1]+1]))
@@ -150,8 +146,8 @@ for index, row in sophie_slice.iloc[:-1].iterrows():
 ax.set_xlabel("Time (UTC)")
 ax.set_ylabel("SME (U\L) (nT)")
 ax.set_xlim(pd.to_datetime(start), pd.to_datetime(end))
-ax.xaxis.set_minor_locator(dates.MinuteLocator(interval=30))
-ax.xaxis.set_major_locator(dates.HourLocator(interval=2))
+ax.xaxis.set_minor_locator(dates.MinuteLocator(interval=5))
+ax.xaxis.set_major_locator(dates.MinuteLocator(interval=30))
 ax.xaxis.set_major_formatter(dates.DateFormatter("%d/%m/%Y\n%H:%M"))
 
 handles, labels = ax.get_legend_handles_labels()
@@ -161,5 +157,4 @@ labels = [labels[i] for i in sorted(labels.index(elem) for elem in set(labels))]
 
 ax.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 1))
 
-sophie_slice
 # %%
