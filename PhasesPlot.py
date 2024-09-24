@@ -21,7 +21,7 @@ cm=1/2.54
 # Loading in SOPHIE Data
 sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2021.txt")
 sophiedf["Date_UTC"] = pd.to_datetime(sophiedf["Date_UTC"])
-# sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
+sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
 sophiedf = sophiedf[sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
 if "Delbay" in sophiedf.columns:
     sophiedf.rename(columns={"Delbay": "DeltaSML"}, inplace=True)
@@ -29,7 +29,7 @@ if "SML Val at End" in sophiedf.columns:
     sophiedf.rename(columns={"SML Val at End": "SMLatEnd"}, inplace=True)
 
 sophiedf["DeltaSML"] = pd.to_numeric(sophiedf["DeltaSML"], errors="coerce")
-sophiedf = sophiedf.loc[1:].reset_index(drop=True)
+sophiedf = sophiedf.loc[2:].reset_index(drop=True)
 
 sophiedf["Flag"] = sophiedf["Flag"].replace(4, 0)
 sophiedf["Flag"] = sophiedf["Flag"].replace([1, 2, 3, 5, 6, 7], 1)
