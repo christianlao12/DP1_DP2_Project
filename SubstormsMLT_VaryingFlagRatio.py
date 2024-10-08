@@ -174,41 +174,21 @@ def process_sophiedf(sophiedf):
             and (sophiedf.iloc[i + 2]["Phase"] == 1)
         ):
             iso_arr[i] = 1  # GERG
-
     sophiedf["Isolated Onset"] = iso_arr
 
     # Compound Onsets
-    # Excluding expansion phases directly before growth phases
-    expansionbeforegrowth_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
-    for i in range(len(sophiedf["Date_UTC"]) - 1):
-        if (sophiedf.iloc[i]["Phase"] == 2) and (sophiedf.iloc[i + 1]["Phase"] == 1):
-            expansionbeforegrowth_arr[i] = 1
-
-    for i in reversed(range(len(sophiedf["Date_UTC"]) - 2)):
-        if (sophiedf.iloc[i]["Phase"] == 2) and (expansionbeforegrowth_arr[i + 2] == 1):
-            expansionbeforegrowth_arr[i] = 1
-
-    # Excluding expansion phases directly after recovery phases that follow a growth phase
-    expansionafterGR_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
-    for i in range(2, len(sophiedf["Date_UTC"])):
+    comp_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
+    for i in range(2, len(sophiedf["Date_UTC"]) - 1):
         if (
-            (sophiedf.iloc[i]["Phase"] == 2)
+            (sophiedf.iloc[i - 2]["Phase"] ==2)
             and (sophiedf.iloc[i - 1]["Phase"] == 3)
-            and (sophiedf.iloc[i - 2]["Phase"] == 1)
+            and (sophiedf.iloc[i]["Phase"] == 2)
         ):
-            expansionafterGR_arr[i] = 1
-
-    for i in range(2, len(sophiedf["Date_UTC"])):
-        if (sophiedf.iloc[i]["Phase"] == 2) and (expansionafterGR_arr[i - 2] == 1):
-            expansionafterGR_arr[i] = 1
-
-    compound_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
-    compound_arr[
-        np.setdiff1d(np.where(sophiedf["Phase"] == 2), np.where(iso_arr == 1))
-    ] = 1
-    compound_arr[np.where(expansionbeforegrowth_arr == 1)] = 0
-    compound_arr[np.where(expansionafterGR_arr == 1)] = 0
-    sophiedf["Compound Onset"] = compound_arr
+            comp_arr[i] = 1
+    for i, val in enumerate(comp_arr):
+        if val == 1:
+            comp_arr[i - 2] = 1
+    sophiedf["Compound Onset"] = comp_arr
 
     # Excluding onsets after a convection interval
     newflag_arr = sophiedf["Flag"].to_numpy().copy()
@@ -216,25 +196,8 @@ def process_sophiedf(sophiedf):
         if newflag_arr[i] == 1 or (
             newflag_arr[i - 1] == 1 and sophiedf.iloc[i]["Phase"] != 1
         ):
-            newflag_arr[i] = 1  # Add your logic here
-
+            newflag_arr[i] = 1  
     sophiedf["NewFlag"] = newflag_arr
-
-    # Finding last onset of compound chain that are ended by a convection interval
-    compend_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
-    for i in range(len(sophiedf["Date_UTC"]) - 2):
-        if (
-            (sophiedf.iloc[i]["Phase"] == 2)
-            and (sophiedf.iloc[i]["NewFlag"] == 0)
-            and (sophiedf.iloc[i + 2]["NewFlag"] == 1)
-        ):
-            compend_arr[i] = 1
-            continue
-        else:
-            compend_arr[i] = 0
-            continue
-
-    sophiedf["OnsetBeforeConvection"] = compend_arr
 
     return sophiedf
 
@@ -258,6 +221,7 @@ sophiedf_smu10 = process_sophiedf(sophiedf_smu10)
 def chain_calculation(df):
     expansions = df.iloc[np.where(df["Phase"] == 2)].reset_index(drop=True)
     convec_expansions = expansions.iloc[np.where(expansions["Flag"] == 1)]
+    substorms = np.where(expansions["Flag"] == 0)[0]
     isolated = np.intersect1d(
         np.where(expansions["Isolated Onset"] == 1),
         np.where(expansions["NewFlag"] == 0),
@@ -276,17 +240,8 @@ def chain_calculation(df):
         ),
     )
     onsets_after_convec = expansions.iloc[after_convec]
-    geg = np.setdiff1d(
-        expansions.index.to_numpy(),
-        np.union1d(
-            np.union1d(
-                np.union1d(isolated, compound), np.where(expansions["Flag"] == 1)
-            ),
-            after_convec,
-        ),
-    )
+    geg = np.setdiff1d(substorms,np.concatenate((isolated,compound,after_convec)))
     gegdf = expansions.iloc[geg]
-
     return (
         expansions,
         convec_expansions,
@@ -491,7 +446,7 @@ df = pd.DataFrame(
     ],
 )
 
-df.to_csv("SOPHIE_EPT90_1997-2020_OnsetTypes.csv")
+df.to_csv("Outputs/OnsetTypes.csv")
 
 
 # %%

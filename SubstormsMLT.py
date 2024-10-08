@@ -24,7 +24,8 @@ def chi_squared_test(measured, model, uncertainty):
 # %% Loading in Substorm Data
 
 # Loading in SOPHIE Data
-sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2021.txt")
+# sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2021.txt")
+sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2024_NewFlag.csv")
 sophiedf["Date_UTC"] = pd.to_datetime(sophiedf["Date_UTC"])
 sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
 sophiedf = sophiedf[sophiedf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
@@ -37,11 +38,13 @@ if "SML Val at End" in sophiedf.columns:
 sophiedf["DeltaSML"] = pd.to_numeric(sophiedf["DeltaSML"], errors="coerce")
 sophiedf = sophiedf.loc[2:].reset_index(drop=True)
 
-sophiedf["Flag"] = sophiedf["Flag"].replace(4, 0)
-sophiedf["Flag"] = sophiedf["Flag"].replace([1, 2, 3, 5, 6, 7], 1)
+# sophiedf["Flag"] = sophiedf["Flag"].replace(4, 0)
+# sophiedf["Flag"] = sophiedf["Flag"].replace([1, 2, 3, 5, 6, 7], 1)
+sophiedf['Flag'] = sophiedf['Flag'].apply(lambda x: 1 if x > 0 else 0)
+
 
 # Loading in Frey Data
-freydf = pd.read_csv("Data/substorms-frey-20000101_000000_to_20070101_000000.csv", low_memory=False)
+freydf = pd.read_csv("Data/FreySubstorms.csv", low_memory=False)
 freydf["Date_UTC"] = pd.to_datetime(freydf["Date_UTC"])
 fredydf = freydf[freydf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
 
@@ -56,8 +59,7 @@ ohtanidf["Date_UTC"] = pd.to_datetime(ohtanidf["Date_UTC"])
 ohtanidf = ohtanidf[ohtanidf["Date_UTC"].between("1997", "2020", inclusive="left")].reset_index(drop=True)
 # ohtanidf = ohtanidf[ohtanidf["Date_UTC"].between("2000-05-19", "2003-01-01", inclusive="left")].reset_index(drop=True)
 
-# %% SOPHIE Phases
-
+# %% SOPHIE Event Classification
 # Isolated Onsets
 iso_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
 for i in range(1, len(sophiedf["Date_UTC"]) - 2):
@@ -68,97 +70,60 @@ for i in range(1, len(sophiedf["Date_UTC"]) - 2):
         and (sophiedf.iloc[i + 2]["Phase"] == 1)
     ):
         iso_arr[i] = 1  # GERG
-
-sophiedf["Isolated Onset"] = iso_arr
+sophiedf["Isolated"] = iso_arr
 
 # Compound Onsets
-# Excluding expansion phases directly before growth phases
-expansionbeforegrowth_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
-for i in range(len(sophiedf["Date_UTC"]) - 1):
-    if (sophiedf.iloc[i]["Phase"] == 2) and (sophiedf.iloc[i + 1]["Phase"] == 1):
-        expansionbeforegrowth_arr[i] = 1
-
-for i in reversed(range(len(sophiedf["Date_UTC"]) - 2)):
-    if (sophiedf.iloc[i]["Phase"] == 2) and (expansionbeforegrowth_arr[i + 2] == 1):
-        expansionbeforegrowth_arr[i] = 1
-
-# Excluding expansion phases directly after recovery phases that follow a growth phase
-expansionafterGR_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
-for i in range(2, len(sophiedf["Date_UTC"])):
+comp_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
+for i in range(2, len(sophiedf["Date_UTC"]) - 1):
     if (
-        (sophiedf.iloc[i]["Phase"] == 2)
+        (sophiedf.iloc[i - 2]["Phase"] == 2)
         and (sophiedf.iloc[i - 1]["Phase"] == 3)
-        and (sophiedf.iloc[i - 2]["Phase"] == 1)
+        and (sophiedf.iloc[i]["Phase"] == 2)
     ):
-        expansionafterGR_arr[i] = 1
+        comp_arr[i] = 1  # Compound Onset
 
-for i in range(2, len(sophiedf["Date_UTC"])):
-    if (sophiedf.iloc[i]["Phase"] == 2) and (expansionafterGR_arr[i - 2] == 1):
-        expansionafterGR_arr[i] = 1
+for i, val in enumerate(comp_arr):
+    if val == 1:
+        comp_arr[i - 2] = 1
+sophiedf["Compound"] = comp_arr
 
-compound_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
-compound_arr[np.setdiff1d(np.where(sophiedf["Phase"] == 2), np.where(iso_arr == 1))] = 1
-compound_arr[np.where(expansionbeforegrowth_arr == 1)] = 0
-compound_arr[np.where(expansionafterGR_arr == 1)] = 0
-sophiedf["Compound Onset"] = compound_arr
-
-# Excluding onsets after a convection interval
+# Flagging Onsets after Convection intervals
 newflag_arr = sophiedf["Flag"].to_numpy().copy()
 for i in range(1, len(sophiedf["Flag"])):
     if newflag_arr[i] == 1 or (
         newflag_arr[i - 1] == 1 and sophiedf.iloc[i]["Phase"] != 1
     ):
         newflag_arr[i] = 1
-
 sophiedf["NewFlag"] = newflag_arr
-
-# Finding last onset of compound chain that are ended by a convection interval
-compend_arr = np.zeros(len(sophiedf["Date_UTC"]), dtype=int)
-for i in range(len(sophiedf["Date_UTC"]) - 2):
-    if (
-        (sophiedf.iloc[i]["Phase"] == 2)
-        and (sophiedf.iloc[i]["NewFlag"] == 0)
-        and (sophiedf.iloc[i + 2]["NewFlag"] == 1)
-    ):
-        compend_arr[i] = 1
-        continue
-    else:
-        compend_arr[i] = 0
-        continue
-sophiedf["OnsetBeforeConvection"] = compend_arr
 
 # %% SOPHIE Event types
 
 # Only Expansion Phases
 expansiondf = sophiedf.iloc[np.where(sophiedf["Phase"] == 2)].reset_index(drop=True)
 
-# Only Convection Expansions
-convec_expansiondf = expansiondf.iloc[np.where(expansiondf["Flag"] == 1)]
+# Only Convection Expansion
+flag_id = np.intersect1d(np.where(expansiondf['Phase'] == 2), np.where(expansiondf["Flag"] == 1))
+convec_expansiondf = expansiondf.iloc[flag_id]
+
+# Substorm Expansions
+nonflag_id = np.intersect1d(np.where(expansiondf['Phase'] == 2), np.where(expansiondf["Flag"] == 0))
+substorm_expansion = sophiedf.iloc[nonflag_id]
 
 # Isolated Onsets
-isolated = np.intersect1d(np.where(expansiondf["Isolated Onset"] == 1), np.where(expansiondf["NewFlag"] == 0))
-iso_onsets = expansiondf.iloc[isolated]
+iso_id = np.intersect1d(np.where(expansiondf["Isolated"] == 1), np.where(expansiondf["Flag"] == 0))
+iso_onsets = expansiondf.iloc[iso_id]
 
 # Compound Onsets
-compound = np.intersect1d(np.where(expansiondf["Compound Onset"] == 1), np.where(expansiondf["NewFlag"] == 0))
-comp_onsets = expansiondf.iloc[compound]
+comp_id = np.intersect1d(np.where(expansiondf["Compound"] == 1), np.where(expansiondf["NewFlag"] == 0))
+comp_onsets = expansiondf.iloc[comp_id]
 
-# Onsets after convection
-after_convec = np.intersect1d(
-    np.where(expansiondf["Phase"] == 2),
-    np.setdiff1d(np.where(expansiondf["NewFlag"] == 1)[0], np.where(expansiondf["Flag"] == 1)[0]),
-)
-onsets_after_convec = expansiondf.iloc[after_convec]
+# After Convection Onsets
+after_convec_id = np.intersect1d(np.where(expansiondf["Phase"] == 2), np.setdiff1d(np.where(expansiondf["NewFlag"] == 1), np.where(expansiondf["Flag"] == 1)))
+after_convec_onsets = expansiondf.iloc[after_convec_id]
 
-# GEG Onsets
-geg = np.setdiff1d(
-    expansiondf.index.to_numpy(),
-    np.union1d(
-        np.union1d(np.union1d(isolated, compound), np.where(expansiondf["Flag"] == 1)),
-        after_convec,
-    ),
-)
-gegdf = expansiondf.iloc[geg]
+# Other Onsets
+other_id = np.setdiff1d(nonflag_id, np.concatenate([iso_id, comp_id, after_convec_id]))
+other_onsets = expansiondf.iloc[other_id]
 
 # %% Substorm MLT distributions
 
@@ -215,7 +180,7 @@ convec_mlt_dens = convec_mlt_counts / np.sum(convec_mlt_counts)
 convec_mlt_dens_err = convec_mlt_counts_err / np.sum(convec_mlt_counts)
 
 # After convection expansions
-after_convec_mlt = onsets_after_convec["MLT"].to_numpy()
+after_convec_mlt = after_convec_onsets["MLT"].to_numpy()
 after_convec_mlt_counts, after_convec_mlt_bins = np.histogram(
     after_convec_mlt, bins=np.arange(0, 25)
 )
@@ -227,14 +192,14 @@ after_convec_mlt_dens_err = after_convec_mlt_counts_err / np.sum(
     after_convec_mlt_counts
 )
 
-# GEG expansions
-geg_mlt = gegdf["MLT"].to_numpy()
-geg_mlt_counts, geg_mlt_bins = np.histogram(geg_mlt, bins=np.arange(0, 25))
-geg_mlt_bins = geg_mlt_bins[:-1]
-geg_mlt_counts = [*geg_mlt_counts[12:], *geg_mlt_counts[:12]]
-geg_mlt_counts_err = 2 * np.sqrt(geg_mlt_counts)
-geg_mlt_dens = geg_mlt_counts / np.sum(geg_mlt_counts)
-geg_mlt_dens_err = geg_mlt_counts_err / np.sum(geg_mlt_counts)
+# Other expansions
+other_mlt = other_onsets["MLT"].to_numpy()
+other_mlt_counts, other_mlt_bins = np.histogram(other_mlt, bins=np.arange(0, 25))
+other_mlt_bins = other_mlt_bins[:-1]
+other_mlt_counts = [*other_mlt_counts[12:], *other_mlt_counts[:12]]
+other_mlt_counts_err = 2 * np.sqrt(other_mlt_counts)
+other_mlt_dens = other_mlt_counts / np.sum(other_mlt_counts)
+other_mlt_dens_err = other_mlt_counts_err / np.sum(other_mlt_counts)
 
 # Total of Isolated, Compound and Convection
 total_mlt_counts = (
@@ -304,107 +269,6 @@ ax.plot(
     label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
     ls="-.",
 )
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
-# %% Plotting Different Onset List MLT Distributions v2
-fig, ax = plt.subplots(dpi=300)
-
-ax.bar(
-    np.arange(24) + 0.5,
-    onsets_mlt_counts,
-    label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),
-    color=colormap[0],
-    alpha = 0.45
-)
-ax.bar(
-    np.arange(24) + 0.5,
-    substorm_onsets_mlt_counts,
-    label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),
-    color=colormap[1],
-    alpha = 0.45
-)
-ax.bar(
-    np.arange(24) + 0.5,
-    newell_mlt_counts,
-    label="Newell & Gjerloev 2011: No. of onsets: {}".format(len(newelldf)),
-    color=colormap[2],
-    alpha = 0.45
-)
-ax.bar(
-    np.arange(24) + 0.5,
-    ohtani_mlt_counts,
-    label="Ohtani & Gjerloev 2020: No. of onsets: {}".format(len(ohtanidf)),
-    color=colormap[3],
-    alpha = 0.45
-)
-ax.bar(
-    np.arange(24) + 0.5,
-    frey_mlt_counts,
-    label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
-    color=colormap[6],
-    alpha = 0.45
-)
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
-# %% Plotting Different Onset List MLT Distributions v2.5
-fig, ax = plt.subplots(dpi=300)
-
-ax.bar(
-    np.arange(24) + 0.5,
-    onsets_mlt_counts,
-    label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),    
-)
-ax.bar(
-    np.arange(24) + 0.5,
-    substorm_onsets_mlt_counts,
-    bottom=onsets_mlt_counts,
-    label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),
-)
-ax.bar(
-    np.arange(24) + 0.5,
-    newell_mlt_counts,
-    bottom=np.array(onsets_mlt_counts) + np.array(substorm_onsets_mlt_counts),
-    label="Newell & Gjerloev 2011: No. of onsets: {}".format(len(newelldf)),
-)
-ax.bar(
-    np.arange(24) + 0.5,
-    ohtani_mlt_counts,
-    bottom=np.array(onsets_mlt_counts) + np.array(substorm_onsets_mlt_counts) + np.array(newell_mlt_counts),
-    label="Ohtani & Gjerloev 2020: No. of onsets: {}".format(len(ohtanidf)),
-)
-ax.bar(
-    np.arange(24) + 0.5,
-    frey_mlt_counts,
-    bottom=np.array(onsets_mlt_counts) + np.array(substorm_onsets_mlt_counts) + np.array(newell_mlt_counts) + np.array(ohtani_mlt_counts),
-    label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
-)
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
-# %% Plotting Different Onset List MLT Distributions v3
-counts = [onsets_mlt_counts, substorm_onsets_mlt_counts, newell_mlt_counts, ohtani_mlt_counts, frey_mlt_counts]
-labels = ["All SOPHIE Events", "SOPHIE Substorms", "Newell & Gjerloev, 2011", "Ohtani & Gjerloev, 2020", "Frey et al., 2004"]
-x = np.arange(24)-.3
-width = 0.15
-multiplier = 0
-
-fig, ax = plt.subplots(dpi=300)
-for i, val in enumerate(counts):
-    offset = width * multiplier
-    rects = ax.bar(x + offset, val, width=width, label=labels[i], color=colormap[i])
-    multiplier += 1
-
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
@@ -488,8 +352,8 @@ chi_after_convec = np.inf
 fit_after_convec = []
 n_substorm_after_convec = 0
 
-for i in range(len(onsets_after_convec)):
-    dist = np.array(dp1_dens) * i + np.array(dp2_dens) * (len(onsets_after_convec) - i)
+for i in range(len(after_convec_onsets)):
+    dist = np.array(dp1_dens) * i + np.array(dp2_dens) * (len(after_convec_onsets) - i)
     chi_sq = chi_squared_test(after_convec_mlt_counts, dist, after_convec_mlt_counts_err)
     if chi_sq < chi_after_convec:
         chi_after_convec = chi_sq
@@ -497,24 +361,24 @@ for i in range(len(onsets_after_convec)):
         fit_after_convec = dist
 
 fit_after_convec_dens = fit_after_convec / np.sum(fit_after_convec)
-n_convec_after_convec = len(onsets_after_convec) - n_substorm_after_convec
+n_convec_after_convec = len(after_convec_onsets) - n_substorm_after_convec
 
-# Fitting to GEG distribution by weighted sum of isolated and convection expansion
+# Fitting to Other distribution by weighted sum of isolated and convection expansion
 
-chi_geg = np.inf
-fit_geg = []
-n_substorm_geg = 0
+chi_other = np.inf
+fit_other = []
+n_substorm_other = 0
 
-for i in range(len(gegdf)):
-    dist = np.array(dp1_dens) * i + np.array(dp2_dens) * (len(gegdf) - i)
-    chi_sq = chi_squared_test(geg_mlt_counts, dist, geg_mlt_counts_err)
-    if chi_sq < chi_geg:
-        chi_geg = chi_sq
-        n_substorm_geg = i
-        fit_geg = dist
+for i in range(len(other_onsets)):
+    dist = np.array(dp1_dens) * i + np.array(dp2_dens) * (len(other_onsets) - i)
+    chi_sq = chi_squared_test(other_mlt_counts, dist, other_mlt_counts_err)
+    if chi_sq < chi_other:
+        chi_other = chi_sq
+        n_substorm_other = i
+        fit_other = dist
 
-fit_geg_dens = fit_geg / np.sum(fit_geg)
-n_convec_geg = len(gegdf) - n_substorm_geg
+fit_other_dens = fit_other / np.sum(fit_other)
+n_convec_other = len(other_onsets) - n_substorm_other
 
 # %% Plotting Known distributions
 
@@ -611,43 +475,6 @@ ax.legend(
 )
 
 fig.tight_layout(pad=1)
-
-# Plotting Frey MLT distribution
-fig, ax = plt.subplots(dpi=300)
-
-ax.plot(
-    np.arange(24) + 0.5,
-    frey_mlt_counts,
-    color=colormap[6],
-    label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),
-)
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
-# Plotting Newell and Ohtani distributions
-fig, ax = plt.subplots(dpi=300)
-
-ax.plot(
-    np.arange(24) + 0.5,
-    newell_mlt_counts,
-    color=colormap[0],
-    label="Newell et al. 2011: No. of onsets: {}".format(len(newelldf)),
-)
-ax.plot(
-    np.arange(24) + 0.5,
-    ohtani_mlt_counts,
-    color=colormap[1],
-    label="Ohtani et al. 2020: No. of onsets: {}".format(len(ohtanidf)),
-)
-ax.set_xlabel("MLT")
-ax.set_ylabel("Counts")
-ax.set_xticks(range(24))
-ax.set_xticklabels(bins)
-ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
 
 # %% Plotting fitted distributions
 
@@ -746,7 +573,7 @@ ax.plot(
     np.arange(24) + 0.5,
     after_convec_mlt_counts,
     color=colormap[4],
-    label="After Convection Onsets: No. of onsets: {}".format(len(onsets_after_convec)),
+    label="After Convection Onsets: No. of onsets: {}".format(len(after_convec_onsets)),
 )
 ax.plot(
     np.arange(24) + 0.5,
@@ -754,7 +581,7 @@ ax.plot(
     color=colormap[9],
     ls="--",
     label="Fitted After Convection Onsets: DP1: {} and DP2: {}".format(
-        n_substorm_after_convec, len(onsets_after_convec) - n_substorm_after_convec
+        n_substorm_after_convec, len(after_convec_onsets) - n_substorm_after_convec
     ),
 )
 ax.plot(
@@ -779,40 +606,40 @@ ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 fig.tight_layout(pad=1)
 
-# Plotting GEG fit from (Isolated - Convection) and Convection
+# Plotting Other fit from (Isolated - Convection) and Convection
 
-cvm_geg = cramervonmises_2samp(geg_mlt_counts, fit_geg).statistic
+cvm_other = cramervonmises_2samp(other_mlt_counts, fit_other).statistic
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(
     np.arange(24) + 0.5,
-    geg_mlt_counts,
+    other_mlt_counts,
     color=colormap[5],
-    label="GEG Expansion Phase: No. of onsets: {}".format(len(gegdf)),
+    label="Other Expansion Phases: No. of onsets: {}".format(len(other_onsets)),
 )
 ax.plot(
     np.arange(24) + 0.5,
-    fit_geg,
+    fit_other,
     color=colormap[9],
     ls="--",
-    label="Fitted GEG: DP1: {} and DP2: {}".format(
-        n_substorm_geg, len(gegdf) - n_substorm_geg
+    label="Fitted other: DP1: {} and DP2: {}".format(
+        n_substorm_other, len(other_onsets) - n_substorm_other
     ),
 )
 ax.plot(
     np.arange(24) + 0.5,
-    (n_substorm_geg) * dp1_dens,
+    (n_substorm_other) * dp1_dens,
     color=colormap[7],
     ls="-.",
     label="DP1 contribution",
 )
 ax.plot(
     np.arange(24) + 0.5,
-    n_convec_geg * dp2_dens,
+    n_convec_other * dp2_dens,
     color=colormap[8],
     label="DP2 contribution",
 )
-ax.text(s=f"Cramer-von Mises Goodness of Fit: {cvm_geg:.3f}",x=0.025,y=0.95,transform=ax.transAxes,)
+ax.text(s=f"Cramer-von Mises Goodness of Fit: {cvm_other:.3f}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
@@ -825,13 +652,13 @@ fig.tight_layout(pad=1)
 # %% Printing out numbers
 
 nevents = len(expansiondf)
-dp1 = np.sum([n_substorm_iso, n_substorm_comp, n_substorm_after_convec, n_substorm_geg])
+dp1 = np.sum([n_substorm_iso, n_substorm_comp, n_substorm_after_convec, n_substorm_other])
 dp2 = np.sum(
     [
         n_convec_iso,
         n_convec_comp,
         n_convec_after_convec,
-        n_convec_geg,
+        n_convec_other,
         len(convec_expansiondf),
     ]
 )
