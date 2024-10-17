@@ -1,19 +1,11 @@
 # %%
 # Importing Modules
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import ticker, colors
-from matplotlib.dates import DateFormatter
-from collections import Counter
-from scipy import stats
+import numpy as np
+import pandas as pd
 import seaborn as sns
 
-sns.set_theme(
-    context="paper",
-    style="whitegrid",
-    palette="colorblind",
-)
+sns.set_theme(context="paper",style="whitegrid",palette="colorblind",)
 colormap = sns.color_palette("colorblind", as_cmap=True)
 
 
@@ -28,136 +20,84 @@ def chi_squared_test(measured, model, uncertainty):
 
 # %% Loading in SOPHIE Data
 # Loading in SOPHIE SMU Threshold 1
-sophiedf_smu1 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_01.txt",
-    low_memory=False,
-)
+sophiedf_smu1 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_01.csv",)
 sophiedf_smu1["Date_UTC"] = pd.to_datetime(sophiedf_smu1["Date_UTC"])
 sophiedf_smu1["Duration"] = np.append(np.diff(sophiedf_smu1["Date_UTC"].to_numpy()), 0)
 sophiedf_smu1["Delbay"] = pd.to_numeric(sophiedf_smu1["DeltaSML"], errors="coerce")
 sophiedf_smu1.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu1 = sophiedf_smu1[
-    sophiedf_smu1["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu1 = sophiedf_smu1[sophiedf_smu1["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # Loading in SOPHIE SMU Threshold 2
-sophiedf_smu2 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_02.txt",
-    low_memory=False,
-)
+sophiedf_smu2 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_02.csv",)
 sophiedf_smu2["Date_UTC"] = pd.to_datetime(sophiedf_smu2["Date_UTC"])
 sophiedf_smu2["Duration"] = np.append(np.diff(sophiedf_smu2["Date_UTC"].to_numpy()), 0)
 sophiedf_smu2["Delbay"] = pd.to_numeric(sophiedf_smu2["DeltaSML"], errors="coerce")
 sophiedf_smu2.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu2 = sophiedf_smu2[
-    sophiedf_smu2["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu2 = sophiedf_smu2[sophiedf_smu2["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # Loading in SOPHIE SMU Threshold 3
-sophiedf_smu3 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_03.txt",
-    low_memory=False,
-)
+sophiedf_smu3 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_03.csv")
 sophiedf_smu3["Date_UTC"] = pd.to_datetime(sophiedf_smu3["Date_UTC"])
 sophiedf_smu3["Duration"] = np.append(np.diff(sophiedf_smu3["Date_UTC"].to_numpy()), 0)
 sophiedf_smu3["Delbay"] = pd.to_numeric(sophiedf_smu3["DeltaSML"], errors="coerce")
 sophiedf_smu3.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu3 = sophiedf_smu3[
-    sophiedf_smu3["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu3 = sophiedf_smu3[sophiedf_smu3["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # Loading in SOPHIE SMU Threshold 4
-sophiedf_smu4 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_04.txt",
-    low_memory=False,
-)
+sophiedf_smu4 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_04.csv",)
 sophiedf_smu4["Date_UTC"] = pd.to_datetime(sophiedf_smu4["Date_UTC"])
 sophiedf_smu4["Duration"] = np.append(np.diff(sophiedf_smu4["Date_UTC"].to_numpy()), 0)
 sophiedf_smu4["Delbay"] = pd.to_numeric(sophiedf_smu4["DeltaSML"], errors="coerce")
 sophiedf_smu4.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu4 = sophiedf_smu4[
-    sophiedf_smu4["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu4 = sophiedf_smu4[sophiedf_smu4["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # Loading in SOPHIE SMU Threshold 5
-sophiedf_smu5 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_05.txt",
-    low_memory=False,
-)
+sophiedf_smu5 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_05.csv",)
 sophiedf_smu5["Date_UTC"] = pd.to_datetime(sophiedf_smu5["Date_UTC"])
 sophiedf_smu5["Duration"] = np.append(np.diff(sophiedf_smu5["Date_UTC"].to_numpy()), 0)
 sophiedf_smu5["Delbay"] = pd.to_numeric(sophiedf_smu5["DeltaSML"], errors="coerce")
 sophiedf_smu5.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu5 = sophiedf_smu5[
-    sophiedf_smu5["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu5 = sophiedf_smu5[sophiedf_smu5["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # Loading in SOPHIE SMU Threshold 6
-sophiedf_smu6 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_06.txt",
-    low_memory=False,
-)
+sophiedf_smu6 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_06.csv",)
 sophiedf_smu6["Date_UTC"] = pd.to_datetime(sophiedf_smu6["Date_UTC"])
 sophiedf_smu6["Duration"] = np.append(np.diff(sophiedf_smu6["Date_UTC"].to_numpy()), 0)
 sophiedf_smu6["Delbay"] = pd.to_numeric(sophiedf_smu6["DeltaSML"], errors="coerce")
 sophiedf_smu6.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu6 = sophiedf_smu6[
-    sophiedf_smu6["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu6 = sophiedf_smu6[sophiedf_smu6["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # Loading in SOPHIE SMU Threshold 7
-sophiedf_smu7 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_07.txt",
-    low_memory=False,
-)
+sophiedf_smu7 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_07.csv",)
 sophiedf_smu7["Date_UTC"] = pd.to_datetime(sophiedf_smu7["Date_UTC"])
 sophiedf_smu7["Duration"] = np.append(np.diff(sophiedf_smu7["Date_UTC"].to_numpy()), 0)
 sophiedf_smu7["Delbay"] = pd.to_numeric(sophiedf_smu7["DeltaSML"], errors="coerce")
 sophiedf_smu7.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu7 = sophiedf_smu7[
-    sophiedf_smu7["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu7 = sophiedf_smu7[sophiedf_smu7["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # Loading in SOPHIE SMU Threshold 8
-sophiedf_smu8 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_08.txt",
-    low_memory=False,
-)
+sophiedf_smu8 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_08.csv",)
 sophiedf_smu8["Date_UTC"] = pd.to_datetime(sophiedf_smu8["Date_UTC"])
 sophiedf_smu8["Duration"] = np.append(np.diff(sophiedf_smu8["Date_UTC"].to_numpy()), 0)
 sophiedf_smu8["Delbay"] = pd.to_numeric(sophiedf_smu8["DeltaSML"], errors="coerce")
 sophiedf_smu8.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu8 = sophiedf_smu8[
-    sophiedf_smu8["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu8 = sophiedf_smu8[sophiedf_smu8["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # Loading in SOPHIE SMU Threshold 9
-sophiedf_smu9 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_09.txt",
-    low_memory=False,
-)
+sophiedf_smu9 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_09.csv",)
 sophiedf_smu9["Date_UTC"] = pd.to_datetime(sophiedf_smu9["Date_UTC"])
 sophiedf_smu9["Duration"] = np.append(np.diff(sophiedf_smu9["Date_UTC"].to_numpy()), 0)
 sophiedf_smu9["Delbay"] = pd.to_numeric(sophiedf_smu9["DeltaSML"], errors="coerce")
 sophiedf_smu9.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu9 = sophiedf_smu9[
-    sophiedf_smu9["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu9 = sophiedf_smu9[sophiedf_smu9["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # Loading in SOPHIE SMU Threshold 10
-sophiedf_smu10 = pd.read_csv(
-    "Data/SOPHIEEPT90_VaryingFlagThreshold/SOPHIE_EPT90_1997-2021_threshold_10.txt",
-    low_memory=False,
-)
+sophiedf_smu10 = pd.read_csv("Data/SOPHIE_VaryingFlagv2/EPT90_Threshold_10.csv",)
 sophiedf_smu10["Date_UTC"] = pd.to_datetime(sophiedf_smu10["Date_UTC"])
-sophiedf_smu10["Duration"] = np.append(
-    np.diff(sophiedf_smu10["Date_UTC"].to_numpy()), 0
-)
+sophiedf_smu10["Duration"] = np.append(np.diff(sophiedf_smu10["Date_UTC"].to_numpy()), 0)
 sophiedf_smu10["Delbay"] = pd.to_numeric(sophiedf_smu10["DeltaSML"], errors="coerce")
 sophiedf_smu10.drop(columns=["DeltaSML"], inplace=True)
-sophiedf_smu10 = sophiedf_smu10[
-    sophiedf_smu10["Date_UTC"].between("1997", "2020", inclusive='left')
-].reset_index(drop=True)
+sophiedf_smu10 = sophiedf_smu10[sophiedf_smu10["Date_UTC"].between("1997", "2020", inclusive='left')].reset_index(drop=True)
 
 # %% SOPHIE Phases
 # Onset types
@@ -449,8 +389,8 @@ df = pd.DataFrame(
 df.to_csv("Outputs/OnsetTypes.csv")
 
 
-# %%
-# Substorm MLT Distribution Functions
+# %%# Substorm MLT Distribution Functions
+
 # Distribution function
 def mlt_distribution(df):
     onsets = df["MLT"].to_numpy()
@@ -472,11 +412,9 @@ def mlt_distribution(df):
     )
 
 
-# DP1 fitting function
+# Decomposition Function
 def decompositionfunc(iso_counts, convec_mlt, iso_err):
     iso_counts = np.array(iso_counts)
-    iso_counts_3_18 = np.array([*iso_counts[:7], *iso_counts[15:]])
-    iso_err_3_18 = np.array([*iso_err[:7], *iso_err[15:]])
     convec_mlt_dens = convec_mlt / np.sum(convec_mlt)
     chi_hist = np.inf
     dist = np.zeros(24)
@@ -486,8 +424,7 @@ def decompositionfunc(iso_counts, convec_mlt, iso_err):
     while (np.array(iso_counts) - dist).min() > 0:
         dist = n * np.array(convec_mlt_dens)
         dist = np.round(dist, 0)
-        dist_3_18 = [*dist[:7], *dist[15:]]
-        chi_sq = chi_squared_test(iso_counts_3_18, dist_3_18, iso_err_3_18)
+        chi_sq = chi_squared_test(iso_counts, dist, iso_err)
         if chi_sq < chi_hist:
             chi_hist = chi_sq
             fit_hist = dist
@@ -496,15 +433,19 @@ def decompositionfunc(iso_counts, convec_mlt, iso_err):
 
     iso_minus_convec = np.array(iso_counts) - fit_hist
 
-    mask = np.zeros(np.shape(iso_minus_convec))
-    mask[7:17] = 1
-    substorm_fit = np.where(mask, iso_minus_convec, 0)
-    substorm_fit_dens = substorm_fit / np.sum(substorm_fit)
+    substorm_fit = iso_minus_convec
+    convec_fit = convec_mlt
 
-    mask = np.zeros(np.shape(iso_minus_convec))
-    mask[:7] = 1
-    mask[17:] = 1
-    convec_fit = np.where(mask, iso_minus_convec, 0) + convec_mlt
+    # mask = np.zeros(np.shape(iso_minus_convec))
+    # mask[7:17] = 1
+    # # substorm_fit = np.where(mask, iso_minus_convec, 0)
+
+    # mask = np.zeros(np.shape(iso_minus_convec))
+    # mask[:7] = 1
+    # mask[17:] = 1
+    # convec_fit = np.where(mask, iso_minus_convec, 0) + convec_mlt
+
+    substorm_fit_dens = substorm_fit / np.sum(substorm_fit)
     convec_fit_dens = convec_fit / np.sum(convec_fit)
 
     n_substorm_iso = np.sum(iso_counts) - wght
@@ -519,7 +460,7 @@ def decompositionfunc(iso_counts, convec_mlt, iso_err):
         n_convec_iso,
     )
 
-# Fitting function for other distributions
+# Fitting function from DP1 and DP2 distributions
 def fit_substorm_convec(observed_dist, dist_uncertainty, len):
     observed_dist = np.array(observed_dist)
     dist_uncertainty = np.array(dist_uncertainty)
@@ -631,8 +572,6 @@ bins = list(map(str, bins))
     n_convec_iso,
 ) = decompositionfunc(iso_mlt_counts, convec_mlt_counts, iso_mlt_counts_err)
 
-print(f"DP1 Contribution: {n_substorm_iso}")
-print(f"DP2 Contribution: {n_convec_iso}")
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(np.arange(24) + 0.5, substorm_fit_dens, color=colormap[7], label="DP1 Fit")
@@ -644,7 +583,9 @@ ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 fig.tight_layout(pad=1)
+
 # Isolated Fitting
+
 fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
     iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
 )
@@ -665,8 +606,6 @@ fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
 fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
     geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
 )
-
-fig, ax = plt.subplots(dpi=300)
 
 n_onsets_smu_1 = onsets_mlt.size
 n_substorms_smu_1 = (
@@ -1816,7 +1755,6 @@ iso_mlt_counts_all_thresh = [
     iso_mlt_counts_smu_9,
     iso_mlt_counts_smu_10,
 ]
-
 
 fig, ax = plt.subplots(dpi=300)
 

@@ -1,7 +1,7 @@
 # %% # Importing Modules
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
 from scipy.stats import cramervonmises_2samp
 
@@ -24,7 +24,6 @@ def chi_squared_test(measured, model, uncertainty):
 # %% Loading in Substorm Data
 
 # Loading in SOPHIE Data
-# sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2021.txt")
 sophiedf = pd.read_csv("Data/SOPHIE_EPT90_1996-2024_NewFlag.csv")
 sophiedf["Date_UTC"] = pd.to_datetime(sophiedf["Date_UTC"])
 sophiedf["Duration"] = np.append(np.diff(sophiedf["Date_UTC"].to_numpy()), 0)
@@ -38,10 +37,7 @@ if "SML Val at End" in sophiedf.columns:
 sophiedf["DeltaSML"] = pd.to_numeric(sophiedf["DeltaSML"], errors="coerce")
 sophiedf = sophiedf.loc[2:].reset_index(drop=True)
 
-# sophiedf["Flag"] = sophiedf["Flag"].replace(4, 0)
-# sophiedf["Flag"] = sophiedf["Flag"].replace([1, 2, 3, 5, 6, 7], 1)
 sophiedf['Flag'] = sophiedf['Flag'].apply(lambda x: 1 if x > 0 else 0)
-
 
 # Loading in Frey Data
 freydf = pd.read_csv("Data/FreySubstorms.csv", low_memory=False)
@@ -159,9 +155,7 @@ iso_mlt_dens_err = iso_mlt_counts_err / np.sum(iso_mlt_counts)
 
 # Compound
 compound_onsets_mlt = comp_onsets["MLT"].to_numpy()
-comp_mlt_counts, comp_mlt_bins = np.histogram(
-    compound_onsets_mlt, bins=np.arange(0, 25)
-)
+comp_mlt_counts, comp_mlt_bins = np.histogram(compound_onsets_mlt, bins=np.arange(0, 25))
 comp_mlt_bins = comp_mlt_bins[:-1]
 comp_mlt_counts = [*comp_mlt_counts[12:], *comp_mlt_counts[:12]]
 comp_mlt_counts_err = 2 * np.sqrt(comp_mlt_counts)
@@ -170,9 +164,7 @@ comp_mlt_dens_err = comp_mlt_counts_err / np.sum(comp_mlt_counts)
 
 # Convection expansions
 convec_onsets_mlt = convec_expansiondf["MLT"].to_numpy()
-convec_mlt_counts, convec_mlt_bins = np.histogram(
-    convec_onsets_mlt, bins=np.arange(0, 25)
-)
+convec_mlt_counts, convec_mlt_bins = np.histogram(convec_onsets_mlt, bins=np.arange(0, 25))
 convec_mlt_bins = convec_mlt_bins[:-1]
 convec_mlt_counts = [*convec_mlt_counts[12:], *convec_mlt_counts[:12]]
 convec_mlt_counts_err = 2 * np.sqrt(convec_mlt_counts)
@@ -181,16 +173,12 @@ convec_mlt_dens_err = convec_mlt_counts_err / np.sum(convec_mlt_counts)
 
 # After convection expansions
 after_convec_mlt = after_convec_onsets["MLT"].to_numpy()
-after_convec_mlt_counts, after_convec_mlt_bins = np.histogram(
-    after_convec_mlt, bins=np.arange(0, 25)
-)
+after_convec_mlt_counts, after_convec_mlt_bins = np.histogram(after_convec_mlt, bins=np.arange(0, 25))
 after_convec_mlt_bins = after_convec_mlt_bins[:-1]
 after_convec_mlt_counts = [*after_convec_mlt_counts[12:], *after_convec_mlt_counts[:12]]
 after_convec_mlt_counts_err = 2 * np.sqrt(after_convec_mlt_counts)
 after_convec_mlt_dens = after_convec_mlt_counts / np.sum(after_convec_mlt_counts)
-after_convec_mlt_dens_err = after_convec_mlt_counts_err / np.sum(
-    after_convec_mlt_counts
-)
+after_convec_mlt_dens_err = after_convec_mlt_counts_err / np.sum(after_convec_mlt_counts)
 
 # Other expansions
 other_mlt = other_onsets["MLT"].to_numpy()
@@ -202,9 +190,7 @@ other_mlt_dens = other_mlt_counts / np.sum(other_mlt_counts)
 other_mlt_dens_err = other_mlt_counts_err / np.sum(other_mlt_counts)
 
 # Total of Isolated, Compound and Convection
-total_mlt_counts = (
-    np.array(iso_mlt_counts) + np.array(comp_mlt_counts) + np.array(convec_mlt_counts)
-)
+total_mlt_counts = (np.array(iso_mlt_counts) + np.array(comp_mlt_counts) + np.array(convec_mlt_counts))
 total_mlt_counts_err = 2 * np.sqrt(total_mlt_counts)
 total_mlt_dens = total_mlt_counts / np.sum(total_mlt_counts)
 total_mlt_dens_err = total_mlt_counts_err / np.sum(total_mlt_counts)
@@ -277,9 +263,7 @@ ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 # %% Fitting MLT distributions
 
-# Fitting Isolated 3-18 MLT from Convection distribution
-iso_mlt_counts_3_18 = [*iso_mlt_counts[:7], *iso_mlt_counts[15:]]
-iso_mlt_counts_3_18_err = [*iso_mlt_counts_err[:7], *iso_mlt_counts_err[15:]]
+# Fitting Isolated from Convection distribution
 chi_hist = np.inf
 dist = np.zeros(24)
 iso_convec_fit = np.zeros(24)
@@ -289,8 +273,7 @@ n = 0
 while (np.array(iso_mlt_counts) - dist).min() > 0:
     dist = n * np.array(convec_mlt_dens)
     dist = np.round(dist, 0)
-    dist_3_18 = [*dist[:7], *dist[15:]]
-    chi_sq = chi_squared_test(iso_mlt_counts_3_18, dist_3_18, iso_mlt_counts_3_18_err)
+    chi_sq = chi_squared_test(iso_mlt_counts, dist, iso_mlt_counts_err)
     if chi_sq < chi_hist:
         chi_hist = chi_sq
         wght_hist = n
@@ -300,15 +283,19 @@ while (np.array(iso_mlt_counts) - dist).min() > 0:
 iso_minus_convec = np.array(iso_mlt_counts) - iso_convec_fit
 iso_minus_convec_dens = iso_minus_convec / np.sum(iso_minus_convec)
 
-mask = np.zeros(np.shape(iso_minus_convec))
-mask[7:17] = 1
-dp1 = np.where(mask, iso_minus_convec, 0)
-dp1_dens = dp1 / np.sum(dp1)
+dp1 = iso_minus_convec
+dp2 = convec_mlt_counts
 
-mask = np.zeros(np.shape(iso_minus_convec))
-mask[:7] = 1
-mask[17:] = 1
-dp2 = np.where(mask, iso_minus_convec, 0) + convec_mlt_counts
+# mask = np.zeros(np.shape(iso_minus_convec))
+# mask[7:17] = 1
+# dp1 = np.where(mask, iso_minus_convec, 0)
+
+# mask = np.zeros(np.shape(iso_minus_convec))
+# mask[:7] = 1
+# mask[17:] = 1
+# dp2 = np.where(mask, iso_minus_convec, 0) + convec_mlt_counts
+
+dp1_dens = dp1 / np.sum(dp1)
 dp2_dens = dp2 / np.sum(dp2)
 
 
