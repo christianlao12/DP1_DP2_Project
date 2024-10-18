@@ -379,10 +379,10 @@ df = pd.DataFrame(
     index=[
         "All Onsets",
         "Isolated",
-        "Convection Expansion",
+        "Convection",
         "Compound",
-        "After Convection Expansion",
-        "GEG Expansion",
+        "After Convection",
+        "Other",
     ],
 )
 
@@ -1663,7 +1663,7 @@ ratio_substorms_all_thresh_orig = n_substorms_all_thresh_orig / n_events_all_thr
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(
-    np.arange(1, 11), n_events_all_thresh, color=colormap[0], label="Expansion Onsets"
+    np.arange(1, 11), n_events_all_thresh, color=colormap[0], label="Candidate Expansion Onsets"
 )
 ax.plot(
     np.arange(1, 11),
@@ -1696,53 +1696,10 @@ ax.set_xlabel("SML/SMU Ratio Threshold")
 ax.set_ylabel("Number of Events")
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 ax.set_ylim(0, 35000)
-
-# twin1 = ax.twinx()
-# twin1.set_ylabel('Number of Convection Expansions')
-# twin1.set_ylim(ax.get_ylim())
-
-
 fig.tight_layout(pad=1)
+
 
 # Plotting SML substorm estimation vs threshold
-fig, ax = plt.subplots(dpi=300)
-
-ax.plot(
-    np.arange(1, 11),
-    ratio_substorms_all_thresh * 100,
-    color=colormap[0],
-    label="Percentage of Substorms (Fitted)",
-)
-ax.plot(
-    np.arange(1, 11),
-    ratio_substorms_all_thresh_orig * 100,
-    color=colormap[1],
-    label="Percentage of Substorms (Original)",
-)
-ax.set_xticks(np.arange(1, 11))
-ax.set_xlabel("SML/SMU Ratio Threshold")
-ax.set_ylabel("Percentage of Substorms")
-ax.set_ylim(0, 100)
-ax.legend(loc="best")
-
-fig.tight_layout(pad=1)
-
-# Plotting SML substorm estimation vs threshold
-fig, ax = plt.subplots(dpi=300)
-
-ax.plot(
-    np.arange(1, 11),
-    ratio_substorms_all_thresh_orig / ratio_substorms_all_thresh,
-    color=colormap[0],
-    label="Level of overestimation",
-)
-ax.set_xticks(np.arange(1, 11))
-ax.set_xlabel("SML/SMU Ratio Threshold")
-ax.set_ylabel("Ratio of Original to Fitted Substorms")
-ax.legend(loc="best")
-
-fig.tight_layout(pad=1)
-
 iso_mlt_counts_all_thresh = [
     iso_mlt_counts_smu_1,
     iso_mlt_counts_smu_2,
@@ -1765,6 +1722,17 @@ ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1), ncol=2)
+
+fig.tight_layout(pad=1)
+
+iso_mlt_diff_ratio = (np.array(iso_mlt_counts_smu_10)/np.array(iso_mlt_counts_smu_2))
+
+fig, ax = plt.subplots(dpi=300)
+ax.plot(np.arange(24) + 0.5, iso_mlt_diff_ratio)
+ax.set_xlabel("MLT")
+ax.set_ylabel("N_events Threshold 10/\nN_events Threshold 2")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
 
 fig.tight_layout(pad=1)
 

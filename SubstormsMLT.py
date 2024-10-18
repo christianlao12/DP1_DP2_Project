@@ -639,6 +639,8 @@ fig.tight_layout(pad=1)
 # %% Printing out numbers
 
 nevents = len(expansiondf)
+n_convec = len(convec_expansiondf)
+n_substorms = len(substorm_expansion)
 dp1 = np.sum([n_substorm_iso, n_substorm_comp, n_substorm_after_convec, n_substorm_other])
 dp2 = np.sum(
     [
@@ -651,6 +653,8 @@ dp2 = np.sum(
 )
 
 print(f"Number of events: {nevents}")
+print(f"Number of Substorms: {n_substorms} ({n_substorms/nevents:.2f}%)")
+print(f"Number of Convection: {n_convec} ({n_convec/nevents:.2f}%)")
 print(f"Number of DP1: {dp1} ({dp1/nevents:.2f}%)")
 print(f"Number of DP2: {dp2} ({dp2/nevents:.2f}%)")
 print(dp1 + dp2 == nevents)
