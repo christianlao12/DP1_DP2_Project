@@ -94,8 +94,8 @@ sophiedf["OnsetBeforeConvection"] = compend_arr
 np.intersect1d(np.where(sophiedf["Isolated"] == 1), np.where(sophiedf["NewFlag"] == 1))[0:20]
 # %%
 # Period of interest 
-start = "1997-01-10 15:30"
-end = "1997-01-11 02:00"
+start = "1997-01-26 12:00"
+end = "1997-01-26 15:45"
 
 phasesindices = sophiedf[sophiedf["Date_UTC"].between(start, end, inclusive="both")].index.to_numpy()
 phasesindices = np.concatenate(([phasesindices[0]-1],phasesindices,[phasesindices[-1]+1]))
@@ -126,7 +126,7 @@ ax.set_xlabel("Time (UTC)")
 ax.set_ylabel("SME (U\L) (nT)")
 ax.set_xlim(pd.to_datetime(start), pd.to_datetime(end))
 ax.xaxis.set_minor_locator(dates.MinuteLocator(interval=15))
-ax.xaxis.set_major_locator(dates.MinuteLocator(interval=120))
+ax.xaxis.set_major_locator(dates.MinuteLocator(interval=60))
 ax.xaxis.set_major_formatter(dates.DateFormatter("%Y/%m/%d\n%H:%M"))
 
 handles, labels = ax.get_legend_handles_labels()
@@ -134,6 +134,6 @@ handles, labels = ax.get_legend_handles_labels()
 handles = [handles[i] for i in sorted(labels.index(elem) for elem in set(labels))]
 labels = [labels[i] for i in sorted(labels.index(elem) for elem in set(labels))]
 
-ax.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 1))
+ax.legend(handles, labels, loc="center left", bbox_to_anchor=(1, 0.5))
 
 # %%

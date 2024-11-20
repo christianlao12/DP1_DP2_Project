@@ -8,14 +8,9 @@ import seaborn as sns
 sns.set_theme(context="paper",style="whitegrid",palette="colorblind",)
 colormap = sns.color_palette("colorblind", as_cmap=True)
 
-
 # Function to calculate chi squared test
 def chi_squared_test(measured, model, uncertainty):
-    return np.sum(
-        np.nan_to_num(
-            (np.array(measured) - np.array(model)) ** 2 / np.array(uncertainty) ** 2
-        )
-    )
+    return np.sum(np.nan_to_num((np.array(measured) - np.array(model)) ** 2 / np.array(uncertainty) ** 2))
 
 
 # %% Loading in SOPHIE Data
@@ -295,7 +290,7 @@ def chain_calculation(df):
 
 df = pd.DataFrame(
     {
-        "Threshold 1": [
+        "1": [
             len(expansiondf_smu_1),
             len(iso_onsets_smu_1),
             len(convec_expansiondf_smu_1),
@@ -303,7 +298,7 @@ df = pd.DataFrame(
             len(onsets_after_convec_smu_1),
             len(gegdf_smu_1),
         ],
-        "Threshold 2": [
+        "2": [
             len(expansiondf_smu_2),
             len(iso_onsets_smu_2),
             len(convec_expansiondf_smu_2),
@@ -311,7 +306,7 @@ df = pd.DataFrame(
             len(onsets_after_convec_smu_2),
             len(gegdf_smu_2),
         ],
-        "Threshold 3": [
+        "3": [
             len(expansiondf_smu_3),
             len(iso_onsets_smu_3),
             len(convec_expansiondf_smu_3),
@@ -319,7 +314,7 @@ df = pd.DataFrame(
             len(onsets_after_convec_smu_3),
             len(gegdf_smu_3),
         ],
-        "Threshold 4": [
+        "4": [
             len(expansiondf_smu_4),
             len(iso_onsets_smu_4),
             len(convec_expansiondf_smu_4),
@@ -327,7 +322,7 @@ df = pd.DataFrame(
             len(onsets_after_convec_smu_4),
             len(gegdf_smu_4),
         ],
-        "Threshold 5": [
+        "5": [
             len(expansiondf_smu_5),
             len(iso_onsets_smu_5),
             len(convec_expansiondf_smu_5),
@@ -335,7 +330,7 @@ df = pd.DataFrame(
             len(onsets_after_convec_smu_5),
             len(gegdf_smu_5),
         ],
-        "Threshold 6": [
+        "6": [
             len(expansiondf_smu_6),
             len(iso_onsets_smu_6),
             len(convec_expansiondf_smu_6),
@@ -343,7 +338,7 @@ df = pd.DataFrame(
             len(onsets_after_convec_smu_6),
             len(gegdf_smu_6),
         ],
-        "Threshold 7": [
+        "7": [
             len(expansiondf_smu_7),
             len(iso_onsets_smu_7),
             len(convec_expansiondf_smu_7),
@@ -351,7 +346,7 @@ df = pd.DataFrame(
             len(onsets_after_convec_smu_7),
             len(gegdf_smu_7),
         ],
-        "Threshold 8": [
+        "8": [
             len(expansiondf_smu_8),
             len(iso_onsets_smu_8),
             len(convec_expansiondf_smu_8),
@@ -359,7 +354,7 @@ df = pd.DataFrame(
             len(onsets_after_convec_smu_8),
             len(gegdf_smu_8),
         ],
-        "Threshold 9": [
+        "9": [
             len(expansiondf_smu_9),
             len(iso_onsets_smu_9),
             len(convec_expansiondf_smu_9),
@@ -367,7 +362,7 @@ df = pd.DataFrame(
             len(onsets_after_convec_smu_9),
             len(gegdf_smu_9),
         ],
-        "Threshold 10": [
+        "10": [
             len(expansiondf_smu_10),
             len(iso_onsets_smu_10),
             len(convec_expansiondf_smu_10),
@@ -573,7 +568,6 @@ bins = list(map(str, bins))
 ) = decompositionfunc(iso_mlt_counts, convec_mlt_counts, iso_mlt_counts_err)
 
 fig, ax = plt.subplots(dpi=300)
-
 ax.plot(np.arange(24) + 0.5, substorm_fit_dens, color=colormap[7], label="DP1 Fit")
 ax.plot(np.arange(24) + 0.5, convec_fit_dens, color=colormap[8], label="DP2 Fit")
 ax.set_xlabel("MLT")
@@ -581,39 +575,27 @@ ax.set_ylabel("Density")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
 fig.tight_layout(pad=1)
 
 # Isolated Fitting
 
-fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
-    iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
-)
+fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size)
 
 # Compound Fitting
-fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
-    comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
-)
+fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size)
 
 # After Convection Expansion Fitting
-fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
-    fit_substorm_convec(
-        after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size
-    )
-)
+fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = fit_substorm_convec(after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size)
 
 # GEG Expansion Fitting
-fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
-    geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
-)
+fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size)
 
 n_onsets_smu_1 = onsets_mlt.size
-n_substorms_smu_1 = (
-    n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
-)
+n_substorms_smu_1 = (n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg)
 n_substorms_orig_smu_1 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_1 = convec_onsets_mlt.size
-iso_mlt_counts_smu_1 = iso_mlt_counts 
+iso_mlt_counts_smu_1 = iso_mlt_counts
+iso_mlt_dens_smu_1 = iso_mlt_dens
 
 # %%
 # SOPHIE SMU Threshold 2
@@ -701,35 +683,24 @@ ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 fig.tight_layout(pad=1)
 
 # Isolated Fitting
-fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
-    iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
-)
+fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size)
 
 
 # Compound Fitting
-fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
-    comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
-)
+fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size)
 
 # After Convection Expansion Fitting
-fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
-    fit_substorm_convec(
-        after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size
-    )
-)
+fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = fit_substorm_convec(after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size)
 
 # GEG Expansion Fitting
-fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
-    geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
-)
+fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size)
 
 n_onsets_smu_2 = onsets_mlt.size
-n_substorms_smu_2 = (
-    n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
-)
+n_substorms_smu_2 = (n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg)
 n_substorms_orig_smu_2 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_2 = convec_onsets_mlt.size
 iso_mlt_counts_smu_2 = iso_mlt_counts
+iso_mlt_dens_smu_2 = iso_mlt_dens
 
 # %%
 # SOPHIE SMU Threshold 3
@@ -816,37 +787,28 @@ ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 fig.tight_layout(pad=1)
 # Isolated Fitting
-fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
-    iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
-)
+fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size)
 
 # Compound Fitting
-fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
-    comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
-)
+fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size)
 
 # After Convection Expansion Fitting
-fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
-    fit_substorm_convec(
-        after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size
-    )
-)
+fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = fit_substorm_convec(after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size)
+
 
 # GEG Expansion Fitting
-fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
-    geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
-)
+fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size)
 
 n_onsets_smu_3 = onsets_mlt.size
-n_substorms_smu_3 = (
-    n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
-)
+n_substorms_smu_3 = (n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg)
 n_substorms_orig_smu_3 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_3 = convec_onsets_mlt.size
 iso_mlt_counts_smu_3 = iso_mlt_counts
+iso_mlt_dens_smu_3 = iso_mlt_dens
 
 # %% SOPHIE SMU Threshold 4
 # MLT Distributions
+
 # All onsets
 (
     onsets_mlt,
@@ -856,6 +818,7 @@ iso_mlt_counts_smu_3 = iso_mlt_counts
     onsets_mlt_dens,
     onsets_mlt_dens_err,
 ) = mlt_distribution(expansiondf_smu_4)
+
 # Isolated
 (
     iso_onsets_mlt,
@@ -865,6 +828,7 @@ iso_mlt_counts_smu_3 = iso_mlt_counts
     iso_mlt_dens,
     iso_mlt_dens_err,
 ) = mlt_distribution(iso_onsets_smu_4)
+
 # Compound
 (
     comp_onsets_mlt,
@@ -874,6 +838,7 @@ iso_mlt_counts_smu_3 = iso_mlt_counts
     comp_mlt_dens,
     comp_mlt_dens_err,
 ) = mlt_distribution(comp_onsets_smu_4)
+
 # Convection expansions
 (
     convec_onsets_mlt,
@@ -883,6 +848,7 @@ iso_mlt_counts_smu_3 = iso_mlt_counts
     convec_mlt_dens,
     convec_mlt_dens_err,
 ) = mlt_distribution(convec_expansiondf_smu_4)
+
 # After convection expansions
 (
     after_convec_mlt,
@@ -892,6 +858,7 @@ iso_mlt_counts_smu_3 = iso_mlt_counts
     after_convec_mlt_dens,
     after_convec_mlt_dens_err,
 ) = mlt_distribution(onsets_after_convec_smu_4)
+
 # GEG expansions
 (
     geg_mlt,
@@ -901,7 +868,6 @@ iso_mlt_counts_smu_3 = iso_mlt_counts
     geg_mlt_dens,
     geg_mlt_dens_err,
 ) = mlt_distribution(gegdf_smu_4)
-
 
 # Fitting
 # Decomposition
@@ -922,36 +888,25 @@ ax.set_ylabel("Density")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
 fig.tight_layout(pad=1)
+
 # Isolated Fitting
-fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
-    iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
-)
+fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size)
 
 # Compound Fitting
-fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
-    comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
-)
+fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size)
 
 # After Convection Expansion Fitting
-fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
-    fit_substorm_convec(
-        after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size
-    )
-)
+fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = fit_substorm_convec(after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size)
 
 # GEG Expansion Fitting
-fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
-    geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
-)
+fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size)
 n_onsets_smu_4 = onsets_mlt.size
-n_substorms_smu_4 = (
-    n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
-)
+n_substorms_smu_4 = (n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg)
 n_substorms_orig_smu_4 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_4 = convec_onsets_mlt.size
 iso_mlt_counts_smu_4 = iso_mlt_counts
+iso_mlt_dens_smu_4 = iso_mlt_dens
 
 # %% SOPHIE SMU Threshhold 5
 # MLT Distributions
@@ -1034,38 +989,26 @@ ax.set_ylabel("Density")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
 fig.tight_layout(pad=1)
 
 # Isolated Fitting
-fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
-    iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
-)
+fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size)
 
 # Compound Fitting
-fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
-    comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
-)
+fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size)
 
 # After Convection Expansion Fitting
-fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
-    fit_substorm_convec(
-        after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size
-    )
-)
+fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = fit_substorm_convec(after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size)
 
 # GEG Expansion Fitting
-fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
-    geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
-)
+fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size)
 
 n_onsets_smu_5 = onsets_mlt.size
-n_substorms_smu_5 = (
-    n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
-)
+n_substorms_smu_5 = (n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg)
 n_substorms_orig_smu_5 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_5 = convec_onsets_mlt.size
 iso_mlt_counts_smu_5 = iso_mlt_counts
+iso_mlt_dens_smu_5 = iso_mlt_dens
 
 # %% SOPHIE SMU Threshhold 6
 # MLT Distributions
@@ -1148,38 +1091,26 @@ ax.set_ylabel("Density")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
 fig.tight_layout(pad=1)
 
 # Isolated Fitting
-fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
-    iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
-)
+fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size)
 
 # Compound Fitting
-fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
-    comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
-)
+fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size)
 
 # After Convection Expansion Fitting
-fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
-    fit_substorm_convec(
-        after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size
-    )
-)
+fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = fit_substorm_convec(after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size)
 
 # GEG Expansion Fitting
-fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
-    geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
-)
+fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size)
 
 n_onsets_smu_6 = onsets_mlt.size
-n_substorms_smu_6 = (
-    n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
-)
+n_substorms_smu_6 = (n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg)
 n_substorms_orig_smu_6 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_6 = convec_onsets_mlt.size
 iso_mlt_counts_smu_6 = iso_mlt_counts
+iso_mlt_dens_smu_6 = iso_mlt_dens
 
 # %% SOPHIE SMU Threshhold 7
 # MLT Distributions
@@ -1289,6 +1220,7 @@ n_substorms_smu_7 = (
 n_substorms_orig_smu_7 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_7 = convec_onsets_mlt.size
 iso_mlt_counts_smu_7 = iso_mlt_counts
+iso_mlt_dens_smu_7 = iso_mlt_dens
 
 # %% SOPHIE SMU Threshhold 8
 # MLT Distributions
@@ -1346,6 +1278,7 @@ iso_mlt_counts_smu_7 = iso_mlt_counts
     geg_mlt_dens,
     geg_mlt_dens_err,
 ) = mlt_distribution(gegdf_smu_8)
+
 # Fitting
 # Decomposition
 (
@@ -1356,6 +1289,7 @@ iso_mlt_counts_smu_7 = iso_mlt_counts
     n_substorm_iso,
     n_convec_iso,
 ) = decompositionfunc(iso_mlt_counts, convec_mlt_counts, iso_mlt_counts_err)
+
 fig, ax = plt.subplots(dpi=300)
 ax.plot(np.arange(24) + 0.5, substorm_fit_dens, color=colormap[7], label="DP1 Fit")
 ax.plot(np.arange(24) + 0.5, convec_fit_dens, color=colormap[8], label="DP2 Fit")
@@ -1364,33 +1298,26 @@ ax.set_ylabel("Density")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
 fig.tight_layout(pad=1)
+
 # Isolated Fitting
-fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
-    iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
-)
+fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size)
+
 # Compound Fitting
-fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
-    comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
-)
+fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size)
+
 # After Convection Expansion Fitting
-fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
-    fit_substorm_convec(
-        after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size
-    )
-)
+fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = fit_substorm_convec(after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size)
+
 # GEG Expansion Fitting
-fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
-    geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
-)
+fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size)
+
 n_onsets_smu_8 = onsets_mlt.size
-n_substorms_smu_8 = (
-    n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
-)
+n_substorms_smu_8 = (n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg)
 n_substorms_orig_smu_8 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_8 = convec_onsets_mlt.size
 iso_mlt_counts_smu_8 = iso_mlt_counts
+iso_mlt_dens_smu_8 = iso_mlt_dens
 
 # %% SOPHIE SMU Threshhold 9
 # MLT Distributions
@@ -1458,6 +1385,7 @@ iso_mlt_counts_smu_8 = iso_mlt_counts
     n_substorm_iso,
     n_convec_iso,
 ) = decompositionfunc(iso_mlt_counts, convec_mlt_counts, iso_mlt_counts_err)
+
 fig, ax = plt.subplots(dpi=300)
 ax.plot(np.arange(24) + 0.5, substorm_fit_dens, color=colormap[7], label="DP1 Fit")
 ax.plot(np.arange(24) + 0.5, convec_fit_dens, color=colormap[8], label="DP2 Fit")
@@ -1469,97 +1397,90 @@ ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 fig.tight_layout(pad=1)
 # Isolated Fitting
-fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
-    iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
-)
+fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size)
+
 # Compound Fitting
-fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
-    comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
-)
+fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size)
+
 # After Convection Expansion Fitting
-fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
-    fit_substorm_convec(
-        after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size
-    )
-)
+fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = fit_substorm_convec(after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size)
+
 # GEG Expansion Fitting
-fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
-    geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
-)
+fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size)
+
 n_onsets_smu_9 = onsets_mlt.size
-n_substorms_smu_9 = (
-    n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
-)
+n_substorms_smu_9 = (n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg)
 n_substorms_orig_smu_9 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_9 = convec_onsets_mlt.size
 iso_mlt_counts_smu_9 = iso_mlt_counts
+iso_mlt_dens_smu_9 = iso_mlt_dens
 
 # %% SOPHIE SMU Threshhold 10
 # MLT Distributions
 # All onsets
-(
-    onsets_mlt,
+(onsets_mlt,
     onsets_mlt_counts,
     onsets_mlt_bins,
     onsets_mlt_counts_err,
     onsets_mlt_dens,
     onsets_mlt_dens_err,
 ) = mlt_distribution(expansiondf_smu_10)
+
 # Isolated
-(
-    iso_onsets_mlt,
+(iso_onsets_mlt,
     iso_mlt_counts,
     iso_mlt_bins,
     iso_mlt_counts_err,
     iso_mlt_dens,
     iso_mlt_dens_err,
 ) = mlt_distribution(iso_onsets_smu_10)
+
 # Compound
-(
-    comp_onsets_mlt,
+(comp_onsets_mlt,
     comp_mlt_counts,
     comp_mlt_bins,
     comp_mlt_counts_err,
     comp_mlt_dens,
     comp_mlt_dens_err,
 ) = mlt_distribution(comp_onsets_smu_10)
+
 # Convection expansions
-(
-    convec_onsets_mlt,
+(convec_onsets_mlt,
     convec_mlt_counts,
     convec_mlt_bins,
     convec_mlt_counts_err,
     convec_mlt_dens,
     convec_mlt_dens_err,
 ) = mlt_distribution(convec_expansiondf_smu_10)
+
 # After convection expansions
-(
-    after_convec_mlt,
+(after_convec_mlt,
     after_convec_mlt_counts,
     after_convec_mlt_bins,
     after_convec_mlt_counts_err,
     after_convec_mlt_dens,
     after_convec_mlt_dens_err,
 ) = mlt_distribution(onsets_after_convec_smu_10)
+
 # GEG expansions
-(
-    geg_mlt,
+(geg_mlt,
     geg_mlt_counts,
     geg_mlt_bins,
     geg_mlt_counts_err,
     geg_mlt_dens,
     geg_mlt_dens_err,
 ) = mlt_distribution(gegdf_smu_10)
+
 # Fitting
 # Decomposition
-(
-    convec_fit,
+(convec_fit,
     convec_fit_dens,
     substorm_fit,
     substorm_fit_dens,
     n_substorm_iso,
     n_convec_iso,
 ) = decompositionfunc(iso_mlt_counts, convec_mlt_counts, iso_mlt_counts_err)
+
 fig, ax = plt.subplots(dpi=300)
 ax.plot(np.arange(24) + 0.5, substorm_fit_dens, color=colormap[7], label="DP1 Fit")
 ax.plot(np.arange(24) + 0.5, convec_fit_dens, color=colormap[8], label="DP2 Fit")
@@ -1571,30 +1492,23 @@ ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 fig.tight_layout(pad=1)
 # Isolated Fitting
-fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(
-    iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size
-)
+fit_hist_iso, n_substorm_iso, n_convec_iso = fit_substorm_convec(iso_mlt_counts, iso_mlt_counts_err, iso_onsets_mlt.size)
+
 # Compound Fitting
-fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(
-    comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size
-)
+fit_hist_comp, n_substorm_comp, n_convec_comp = fit_substorm_convec(comp_mlt_counts, comp_mlt_counts_err, comp_onsets_mlt.size)
+
 # After Convection Expansion Fitting
-fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = (
-    fit_substorm_convec(
-        after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size
-    )
-)
+fit_hist_after_convec, n_substorm_after_convec, n_convec_after_convec = fit_substorm_convec(after_convec_mlt_counts, after_convec_mlt_counts_err, after_convec_mlt.size)
+
 # GEG Expansion Fitting
-fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(
-    geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size
-)
+fit_hist_geg, n_substorm_geg, n_convec_geg = fit_substorm_convec(geg_mlt_counts, geg_mlt_counts_err, geg_mlt.size)
+
 n_onsets_smu_10 = onsets_mlt.size
-n_substorms_smu_10 = (
-    n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg
-)
+n_substorms_smu_10 = (n_substorm_iso + n_substorm_comp + n_substorm_after_convec + n_substorm_geg)
 n_substorms_orig_smu_10 = onsets_mlt.size - convec_onsets_mlt.size
 n_convec_smu_10 = convec_onsets_mlt.size
 iso_mlt_counts_smu_10 = iso_mlt_counts
+iso_mlt_dens_smu_10 = iso_mlt_dens
 
 # %%
 # Number of Substorms vs Threshold
@@ -1655,38 +1569,39 @@ n_convec_all_thresh = np.array(
     ]
 )
 
-# Ratio of Substorms vs Threshold
-ratio_substorms_all_thresh = n_substorms_all_thresh / n_events_all_thresh
-ratio_substorms_all_thresh_orig = n_substorms_all_thresh_orig / n_events_all_thresh
+n_years = 23
 
-# Plotting Number of SML substorm estimation vs threshold
+# Plotting Number of SML substorm estimation vs threshold per year
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(
-    np.arange(1, 11), n_events_all_thresh, color=colormap[0], label="Candidate Expansion Onsets"
+    np.arange(1, 11), 
+    n_events_all_thresh/n_years, 
+    color=colormap[0], 
+    label="Candidate Expansion Onsets"
 )
 ax.plot(
     np.arange(1, 11),
-    n_substorms_all_thresh_orig,
+    n_substorms_all_thresh_orig/n_years,
     color=colormap[1],
     label="SOPHIE identified substorms",
 )
 ax.plot(
     np.arange(1, 11),
-    n_substorms_all_thresh,
+    n_substorms_all_thresh/n_years,
     color=colormap[7],
     label="DP1 Perturbations",
     ls="--",
 )
 ax.plot(
     np.arange(1, 11),
-    n_convec_all_thresh,
+    n_convec_all_thresh/n_years,
     color=colormap[3],
     label="SOPHIE identified enhanced convection intervals",
 )
 ax.plot(
     np.arange(1, 11),
-    n_events_all_thresh - n_substorms_all_thresh,
+    (n_events_all_thresh - n_substorms_all_thresh)/n_years,
     color=colormap[8],
     label="DP2 Perturbations",
     ls="--",
@@ -1695,7 +1610,7 @@ ax.set_xticks(np.arange(1, 11))
 ax.set_xlabel("SML/SMU Ratio Threshold")
 ax.set_ylabel("Number of Events")
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-ax.set_ylim(0, 35000)
+ax.set_ylim(0, 1500)
 fig.tight_layout(pad=1)
 
 
@@ -1713,6 +1628,20 @@ iso_mlt_counts_all_thresh = [
     iso_mlt_counts_smu_10,
 ]
 
+iso_mlt_density_all_thresh = [
+    iso_mlt_dens_smu_1,
+    iso_mlt_dens_smu_2,
+    iso_mlt_dens_smu_3,
+    iso_mlt_dens_smu_4,
+    iso_mlt_dens_smu_5,
+    iso_mlt_dens_smu_6,
+    iso_mlt_dens_smu_7,
+    iso_mlt_dens_smu_8,
+    iso_mlt_dens_smu_9,
+    iso_mlt_dens_smu_10,
+]
+
+
 fig, ax = plt.subplots(dpi=300)
 
 for i, val in enumerate(iso_mlt_counts_all_thresh):
@@ -1722,9 +1651,20 @@ ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1), ncol=2)
-
 fig.tight_layout(pad=1)
 
+fig, ax = plt.subplots(dpi=300)
+for i, val in enumerate(iso_mlt_density_all_thresh):
+    ax.plot(np.arange(24) + 0.5, val, label=f"Threshold {i+1}")
+ax.set_xlabel("MLT")
+ax.set_ylabel("Probability")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1), ncol=2)
+fig.tight_layout(pad=1)
+
+
+# Ratio differences
 iso_mlt_diff_ratio = (np.array(iso_mlt_counts_smu_10)/np.array(iso_mlt_counts_smu_2))
 
 fig, ax = plt.subplots(dpi=300)
