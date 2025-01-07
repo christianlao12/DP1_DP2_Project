@@ -94,8 +94,8 @@ sophiedf["OnsetBeforeConvection"] = compend_arr
 np.intersect1d(np.where(sophiedf["Isolated"] == 1), np.where(sophiedf["NewFlag"] == 1))[0:20]
 # %%
 # Period of interest 
-start = "1997-01-26 12:00"
-end = "1997-01-26 15:45"
+start = "1997-01-10 14:00"
+end = "1997-01-11 02:00"
 
 phasesindices = sophiedf[sophiedf["Date_UTC"].between(start, end, inclusive="both")].index.to_numpy()
 phasesindices = np.concatenate(([phasesindices[0]-1],phasesindices,[phasesindices[-1]+1]))
@@ -106,19 +106,20 @@ sophie_slice = sophiedf.iloc[phasesindices].copy()
 # Plotting
 fig, ax = plt.subplots(dpi=300, sharex=True, figsize=(25*cm, 10*cm))
 
-ax.plot(sme_slice["Date_UTC"], sme_slice["SML"], label="SML", color=colormap[0])
-ax.plot(sme_slice["Date_UTC"], sme_slice["SMU"], label="SMU", color=colormap[1])
+ax.plot(sme_slice["Date_UTC"], sme_slice["SML"], label="SML", color='k', linestyle='-')
+ax.plot(sme_slice["Date_UTC"], sme_slice["SMU"], label="SMU", color='k', linestyle='--')
+ax.plot(sme_slice["Date_UTC"], np.zeros_like(sme_slice["SML"]), color='k', linestyle=':')
 
 for index, row in sophie_slice.iloc[:-1].iterrows():
     if row["Phase"] == 1:
-        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[2], alpha=0.3,label="Growth", hatch="//", edgecolor="k")
+        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[2], alpha=0.5,label="Growth")
     if row["Phase"] == 2 and row["Flag"] == 0:
         if row["Isolated"] == 1:
-            ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[3], alpha=0.3,label="Isolated Expansion")
+            ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[1], alpha=0.5,label="Isolated Expansion", hatch="\\\\", edgecolor="k")
         if row["Compound"] == 1:
-            ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[8], alpha=0.3,label="Compound Expansion")
+            ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[4], alpha=0.5,label="Compound Expansion", hatch="//", edgecolor="k")
     if row["Phase"] == 3 and row["Flag"] == 0:
-        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[9], alpha=0.3,label="Recovery")
+        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[0], alpha=0.5,label="Recovery", hatch="o", edgecolor="k")
     if row["Flag"] == 1:
         ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor="k", alpha=0.3,label="Convection Interval")
 
@@ -126,7 +127,7 @@ ax.set_xlabel("Time (UTC)")
 ax.set_ylabel("SME (U\L) (nT)")
 ax.set_xlim(pd.to_datetime(start), pd.to_datetime(end))
 ax.xaxis.set_minor_locator(dates.MinuteLocator(interval=15))
-ax.xaxis.set_major_locator(dates.MinuteLocator(interval=60))
+ax.xaxis.set_major_locator(dates.MinuteLocator(interval=120))
 ax.xaxis.set_major_formatter(dates.DateFormatter("%Y/%m/%d\n%H:%M"))
 
 handles, labels = ax.get_legend_handles_labels()
@@ -134,6 +135,6 @@ handles, labels = ax.get_legend_handles_labels()
 handles = [handles[i] for i in sorted(labels.index(elem) for elem in set(labels))]
 labels = [labels[i] for i in sorted(labels.index(elem) for elem in set(labels))]
 
-ax.legend(handles, labels, loc="center left", bbox_to_anchor=(1, 0.5))
+ax.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 1))
 
 # %%

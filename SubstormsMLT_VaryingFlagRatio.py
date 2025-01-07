@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-sns.set_theme(context="paper",style="whitegrid",palette="colorblind",)
+sns.set_theme(context="notebook",style="whitegrid",palette="colorblind",)
 colormap = sns.color_palette("colorblind", as_cmap=True)
 
 # Function to calculate chi squared test
@@ -382,6 +382,14 @@ df = pd.DataFrame(
 )
 
 df.to_csv("Outputs/OnsetTypes.csv")
+
+fig, ax = plt.subplots(dpi=300)
+
+df.plot(ax=ax, kind="bar", stacked=False, figsize=(10, 5))
+ax.set_xlabel("Onset Type")
+ax.set_ylabel("Counts")
+
+# df.transpose().plot(kind="bar", stacked=False, figsize=(10, 5))
 
 
 # %%# Substorm MLT Distribution Functions
@@ -1588,16 +1596,16 @@ ax.plot(
 )
 ax.plot(
     np.arange(1, 11),
+    n_convec_all_thresh/n_years,
+    color=colormap[3],
+    label="SOPHIE identified convection enhancements",
+)
+ax.plot(
+    np.arange(1, 11),
     n_substorms_all_thresh/n_years,
     color=colormap[7],
     label="DP1 Perturbations",
     ls="--",
-)
-ax.plot(
-    np.arange(1, 11),
-    n_convec_all_thresh/n_years,
-    color=colormap[3],
-    label="SOPHIE identified enhanced convection intervals",
 )
 ax.plot(
     np.arange(1, 11),
@@ -1608,7 +1616,7 @@ ax.plot(
 )
 ax.set_xticks(np.arange(1, 11))
 ax.set_xlabel("SML/SMU Ratio Threshold")
-ax.set_ylabel("Number of Events")
+ax.set_ylabel("Number of Events per Year")
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 ax.set_ylim(0, 1500)
 fig.tight_layout(pad=1)
