@@ -333,7 +333,7 @@ n_convec_other = len(other_onsets) - n_substorm_other
 
 # %% Plotting Known distributions
 
-# Plotting Histograms (Isolated, Compound, Convection Expansion, Total)
+# Plotting Histograms (Total, Isolated, Compound, Convection, Frey)
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(np.arange(24) + 0.5,total_mlt_counts,color=colormap[0],label="Total: No. of events: {}".format(np.sum(total_mlt_counts)),)
@@ -343,6 +343,22 @@ ax.plot(np.arange(24) + 0.5,convec_mlt_counts,color=colormap[2],label="Convectio
 ax.plot(np.arange(24) + 0.5,frey_mlt_counts,color=colormap[6],label="Frey et al. 2004 auroral substorm: No. of events: {}".format(len(freydf)),)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
+
+fig.tight_layout(pad=1)
+
+# Plotting Probability Distributions (Total, Isolated, Compound, Convection, Frey)
+fig, ax = plt.subplots(dpi=300)
+
+ax.plot(np.arange(24) + 0.5,total_mlt_dens,color=colormap[0],label="Total: No. of events: {}".format(np.sum(total_mlt_counts)),)
+ax.plot(np.arange(24) + 0.5,iso_mlt_dens,color=colormap[1],label="Isolated substorm: No. of events: {}".format(len(iso_onsets)),)
+ax.plot(np.arange(24) + 0.5,comp_mlt_dens,color=colormap[3],label="Compound substorm: No. of events: {}".format(len(comp_onsets)),)
+ax.plot(np.arange(24) + 0.5,convec_mlt_dens,color=colormap[2],label="Convection enhancement: No. of events: {}".format(len(convec_expansiondf)),)
+ax.plot(np.arange(24) + 0.5,frey_mlt_dens,color=colormap[6],label="Frey et al. 2004 auroral substorm: No. of events: {}".format(len(freydf)),)
+ax.set_xlabel("MLT")
+ax.set_ylabel("Probability")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))

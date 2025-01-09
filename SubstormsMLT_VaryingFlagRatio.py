@@ -382,12 +382,14 @@ df = pd.DataFrame(
 )
 
 df.to_csv("Outputs/OnsetTypes.csv")
+df.drop("All Onsets", inplace=True)
 
 fig, ax = plt.subplots(dpi=300)
 
 df.plot(ax=ax, kind="bar", stacked=False, figsize=(10, 5))
 ax.set_xlabel("Onset Type")
 ax.set_ylabel("Counts")
+ax.legend(title="Threshold")
 
 # df.transpose().plot(kind="bar", stacked=False, figsize=(10, 5))
 

@@ -94,7 +94,7 @@ sophiedf["OnsetBeforeConvection"] = compend_arr
 np.intersect1d(np.where(sophiedf["Isolated"] == 1), np.where(sophiedf["NewFlag"] == 1))[0:20]
 # %%
 # Period of interest 
-start = "1997-01-10 14:00"
+start = "1997-01-10 15:30"
 end = "1997-01-11 02:00"
 
 phasesindices = sophiedf[sophiedf["Date_UTC"].between(start, end, inclusive="both")].index.to_numpy()
@@ -127,7 +127,7 @@ ax.set_xlabel("Time (UTC)")
 ax.set_ylabel("SME (U\L) (nT)")
 ax.set_xlim(pd.to_datetime(start), pd.to_datetime(end))
 ax.xaxis.set_minor_locator(dates.MinuteLocator(interval=15))
-ax.xaxis.set_major_locator(dates.MinuteLocator(interval=120))
+ax.xaxis.set_major_locator(dates.MinuteLocator(interval=90))
 ax.xaxis.set_major_formatter(dates.DateFormatter("%Y/%m/%d\n%H:%M"))
 
 handles, labels = ax.get_legend_handles_labels()
