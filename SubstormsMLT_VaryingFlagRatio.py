@@ -424,31 +424,20 @@ def decompositionfunc(iso_counts, convec_mlt, iso_err):
     chi_hist = np.inf
     dist = np.zeros(24)
     fit_hist = np.zeros(24)
-
-    n = 0
-    while (np.array(iso_counts) - dist).min() > 0:
-        dist = n * np.array(convec_mlt_dens)
+    
+    for i in range(np.sum(iso_counts)):
+        dist = i * np.array(convec_mlt_dens)
         dist = np.round(dist, 0)
         chi_sq = chi_squared_test(iso_counts, dist, iso_err)
-        if chi_sq < chi_hist:
+        if (iso_counts - dist).min() >= 0:
             chi_hist = chi_sq
+            wght = i
             fit_hist = dist
-            wght = n
-        n += 1
 
     iso_minus_convec = np.array(iso_counts) - fit_hist
 
     substorm_fit = iso_minus_convec
     convec_fit = convec_mlt
-
-    # mask = np.zeros(np.shape(iso_minus_convec))
-    # mask[7:17] = 1
-    # # substorm_fit = np.where(mask, iso_minus_convec, 0)
-
-    # mask = np.zeros(np.shape(iso_minus_convec))
-    # mask[:7] = 1
-    # mask[17:] = 1
-    # convec_fit = np.where(mask, iso_minus_convec, 0) + convec_mlt
 
     substorm_fit_dens = substorm_fit / np.sum(substorm_fit)
     convec_fit_dens = convec_fit / np.sum(convec_fit)

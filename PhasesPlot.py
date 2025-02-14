@@ -121,7 +121,7 @@ for index, row in sophie_slice.iloc[:-1].iterrows():
     if row["Phase"] == 3 and row["Flag"] == 0:
         ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor=colormap[0], alpha=0.5,label="Recovery", hatch="o", edgecolor="k")
     if row["Flag"] == 1:
-        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor="k", alpha=0.3,label="Convection Interval")
+        ax.axvspan(row["Date_UTC"], sophie_slice.loc[index+1]["Date_UTC"], facecolor="k", alpha=0.3,label="Convection Enhancement")
 
 ax.set_xlabel("Time (UTC)")
 ax.set_ylabel("SME (U\L) (nT)")

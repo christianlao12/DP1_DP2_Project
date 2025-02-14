@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib import ticker
 
 # Housekeeping
 sns.set_theme(context="notebook",style="whitegrid",palette="colorblind")
@@ -120,6 +121,40 @@ after_convec_onsets = expansiondf.iloc[after_convec_id]
 other_id = np.setdiff1d(nonflag_id, np.concatenate([iso_id, comp_id, after_convec_id]))
 other_onsets = expansiondf.iloc[other_id]
 
+# %% Analysing seasonal variations of Other Onsets
+
+otheryear = other_onsets["Date_UTC"].dt.year
+othermonths = other_onsets["Date_UTC"].dt.month
+otherhours = other_onsets["Date_UTC"].dt.hour
+
+# Plotting yearly variations
+fig, ax = plt.subplots(dpi=300)
+ax.hist(otheryear,bins=np.arange(1997,2021), density=False,label="Other substorms ", histtype="step",color=colormap[0])
+ax.set_xlabel("Year")
+ax.set_ylabel("Counts")
+ax.set_xticks(range(1997,2021,2))
+ax.legend(loc='best')
+fig.tight_layout(pad=1)
+
+# Plotting monthly variations
+fig, ax = plt.subplots(dpi=300)
+ax.hist(othermonths,bins=np.arange(1,14), density=False,label="Other substorms ", histtype="step",color=colormap[0])
+ax.set_xlabel("Month")
+ax.set_ylabel("Counts")
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax.legend(loc='best')
+fig.tight_layout(pad=1)
+
+# Plotting hourly variations
+fig, ax = plt.subplots(dpi=300)
+ax.hist(otherhours,bins=np.arange(0,25), density=False,label="Other substorms ", histtype="step",color=colormap[0])
+ax.set_xlabel("Hour")
+ax.set_ylabel("Counts")
+ax.set_xticks(range(0,25,2))
+ax.legend(loc='best')
+fig.tight_layout(pad=1)
+
+
 # %% Substorm MLT distributions
 
 # All onsets
@@ -225,37 +260,35 @@ ohtani_mlt_dens_err = ohtani_mlt_counts_err / np.sum(ohtani_mlt_counts)
 fig, ax = plt.subplots(dpi=300)
 
 ax.plot(np.arange(24) + 0.5,onsets_mlt_counts,label="All SOPHIE Events: No. of onsets: {}".format(len(onsets_mlt)),alpha = 0.75)
-ax.plot(np.arange(24) + 0.5,substorm_onsets_mlt_counts,label="SOPHIE Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),alpha = 0.75)
+ax.plot(np.arange(24) + 0.5,iso_mlt_counts,label="SOPHIE Isolated Substorms: No. of onsets: {}".format(len(substorm_onsets_mlt)),alpha = 0.75)
 ax.plot(np.arange(24) + 0.5,newell_mlt_counts,label="Newell & Gjerloev 2011: No. of onsets: {}".format(len(newelldf)),ls="-.",)
 ax.plot(np.arange(24) + 0.5,ohtani_mlt_counts,label="Ohtani & Gjerloev 2020: No. of onsets: {}".format(len(ohtanidf)),ls="-.",)
-ax.plot(np.arange(24) + 0.5,frey_mlt_counts,label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),ls="-.",)
+# ax.plot(np.arange(24) + 0.5,frey_mlt_counts,label="Frey et al. 2004: No. of onsets: {}".format(len(freydf)),ls="-.",)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
+ax.set_xlim(0,24)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
 
 # %% Fitting MLT distributions
 
 # Fitting Isolated from Convection distribution
 chi_hist = np.inf
-dist = np.zeros(24)
 iso_convec_fit = np.zeros(24)
 wght_hist = 0
 
-n = 0
-while (np.array(iso_mlt_counts) - dist).min() > 0:
-    dist = n * np.array(convec_mlt_dens)
+for i in range(len(iso_onsets)):
+    dist = i * np.array(convec_mlt_dens)
     dist = np.round(dist, 0)
     chi_sq = chi_squared_test(iso_mlt_counts, dist, iso_mlt_counts_err)
-    if chi_sq < chi_hist:
+    
+    if (np.array(iso_mlt_counts) - dist).min() >= 0:
         chi_hist = chi_sq
-        wght_hist = n
+        wght_hist = i
         iso_convec_fit = dist
-    n += 1
 
 iso_minus_convec = np.array(iso_mlt_counts) - iso_convec_fit
-iso_minus_convec_dens = iso_minus_convec / np.sum(iso_minus_convec)
 
 dp1 = iso_minus_convec
 dp2 = convec_mlt_counts
@@ -340,13 +373,13 @@ ax.plot(np.arange(24) + 0.5,total_mlt_counts,color=colormap[0],label="Total: No.
 ax.plot(np.arange(24) + 0.5,iso_mlt_counts,color=colormap[1],label="Isolated substorm: No. of events: {}".format(len(iso_onsets)),)
 ax.plot(np.arange(24) + 0.5,comp_mlt_counts,color=colormap[3],label="Compound substorm: No. of events: {}".format(len(comp_onsets)),)
 ax.plot(np.arange(24) + 0.5,convec_mlt_counts,color=colormap[2],label="Convection enhancement: No. of events: {}".format(len(convec_expansiondf)),)
-ax.plot(np.arange(24) + 0.5,frey_mlt_counts,color=colormap[6],label="Frey et al. 2004 auroral substorm: No. of events: {}".format(len(freydf)),)
+ax.plot(np.arange(24) + 0.5,frey_mlt_counts,color=colormap[6],label="Frey et al. 2004 auroral substorms: No. of events: {}".format(len(freydf)),)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
+ax.set_xlim(0,24)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
 fig.tight_layout(pad=1)
 
 # Plotting Probability Distributions (Total, Isolated, Compound, Convection, Frey)
@@ -356,13 +389,13 @@ ax.plot(np.arange(24) + 0.5,total_mlt_dens,color=colormap[0],label="Total: No. o
 ax.plot(np.arange(24) + 0.5,iso_mlt_dens,color=colormap[1],label="Isolated substorm: No. of events: {}".format(len(iso_onsets)),)
 ax.plot(np.arange(24) + 0.5,comp_mlt_dens,color=colormap[3],label="Compound substorm: No. of events: {}".format(len(comp_onsets)),)
 ax.plot(np.arange(24) + 0.5,convec_mlt_dens,color=colormap[2],label="Convection enhancement: No. of events: {}".format(len(convec_expansiondf)),)
-ax.plot(np.arange(24) + 0.5,frey_mlt_dens,color=colormap[6],label="Frey et al. 2004 auroral substorm: No. of events: {}".format(len(freydf)),)
+ax.plot(np.arange(24) + 0.5,frey_mlt_dens,color=colormap[6],label="Frey et al. 2004 auroral substorms: No. of events: {}".format(len(freydf)),)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Probability")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
+ax.set_xlim(0,24)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
 fig.tight_layout(pad=1)
 
 # Plotting Probability Distributions (Isolated, Convection)
@@ -375,7 +408,9 @@ ax.set_xlabel("MLT")
 ax.set_ylabel("Probability")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
+ax.set_xlim(0,24)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
+fig.tight_layout(pad=1)
 
 # Plotting Histogram (Isolated, Convection Fit, Residual)
 fig, ax = plt.subplots(dpi=300)
@@ -388,14 +423,14 @@ ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
 ax.set_xticks(range(24))
 ax.set_xticklabels(bins)
+ax.set_xlim(0,24)
 ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
-
 fig.tight_layout(pad=1)
 
 # Plotting Probability Distributions (Residual, Convection, Frey)
-fig, ax = plt.subplots(3,1,dpi=300,sharex=True,gridspec_kw={'height_ratios': [2, 1, 1]},figsize=(9,6))
+fig, ax = plt.subplots(2,1,dpi=300,sharex=True,gridspec_kw={'height_ratios': [1.75, 1]},figsize=(9,6))
 
-ax[0].plot(np.arange(24) + 0.5,dp2_dens,color=colormap[2],label="Convection (DP2)",)
+ax[0].plot(np.arange(24) + 0.5,dp2_dens,color=colormap[2],label="DP2",)
 ax[0].plot(np.arange(24) + 0.5, dp1_dens, color=colormap[7], ls="-.", label="DP1")
 ax[0].plot(np.arange(24) + 0.5, frey_mlt_dens, color=colormap[6], label="Frey et al. 2004")
 # ax[0].hlines(.5*dp2_dens.max(),0,24,color=colormap[2])
@@ -403,27 +438,37 @@ ax[0].plot(np.arange(24) + 0.5, frey_mlt_dens, color=colormap[6], label="Frey et
 ax[0].set_ylabel("Probability")
 ax[0].set_xticks(range(24))
 ax[0].set_xticklabels(bins)
+ax[0].set_xlim(0,24)
 ax[0].legend(loc="center left", bbox_to_anchor=(1, 0.5))
 
 ssa_dp1 = shoredp1.values[:,1:].T.mean(axis=0)
 ssa_dp2 = shoredp2.values[:,1:].T.mean(axis=0)
 
 ax[1].plot(np.arange(24) + .5, ssa_dp1,label="DP1 Spatial Amplitude Profile",color=colormap[7],ls="-.")
+ax[1].plot(np.arange(24) + .5,ssa_dp2,label="DP2 Spatial Amplitude Profile",color=colormap[2])
 ax[1].hlines(0,0,24,linestyles='--',color='black',alpha=0.5,)
 ax[1].set_ylabel("Amplitude")
 ax[1].set_ylim(bottom=-0.5,top=.75)
 ax[1].yaxis.set_ticks(np.arange(-0.5,1,0.25))
 ax[1].legend(loc="center left", bbox_to_anchor=(1, 0.5))
-
-ax[2].plot(np.arange(24) + .5,ssa_dp2,label="DP2 Spatial Amplitude Profile",color=colormap[2])
-ax[2].hlines(0,0,24,linestyles='--',color='black',alpha=0.5)
-ax[2].set_xlabel("MLT")
-ax[2].set_ylabel("Amplitude")
-ax[2].set_ylim(bottom=-0.5,top=.75)
-ax[2].yaxis.set_ticks(np.arange(-0.5,1,0.25))
-ax[2].legend(loc="center left", bbox_to_anchor=(1, 0.5))
-
 fig.tight_layout(pad=1)
+
+# Plotting SSA DP1 and DP2
+fig, ax = plt.subplots(dpi=300)
+
+ax.plot(np.arange(24) + 0.5, ssa_dp1,label="DP1 Spatial Amplitude Profile",color=colormap[7],ls="-.")
+ax.plot(np.arange(24) + 0.5,ssa_dp2,label="DP2 Spatial Amplitude Profile",color=colormap[2])
+ax.hlines(0,0,24,linestyles='--',color='black',alpha=0.5,)
+ax.set_xlabel("MLT")
+ax.set_ylabel("Amplitude")
+ax.set_xticks(range(24))
+ax.set_xticklabels(bins)
+ax.set_xlim(0,24)
+ax.yaxis.set_ticks(np.arange(-0.5,1,0.25))
+ax.set_ylim(bottom=-0.5,top=.75)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1))
+fig.tight_layout(pad=1)
+
 
 # %% Plotting fitted distributions
 
@@ -433,7 +478,7 @@ fig, ax = plt.subplots(dpi=300)
 ax.plot(np.arange(24) + 0.5,iso_mlt_counts,color=colormap[1],label="Isolated substorm: No. of events: {}".format(len(iso_onsets)),)
 ax.plot(np.arange(24) + 0.5,fit_iso,color=colormap[9],ls="--",label="Fitted Isolated substorm: DP1: {} and DP2: {} (GoF:{:.3f})".format(n_substorm_iso, len(iso_onsets) - n_substorm_iso,chi_iso),)
 ax.plot(np.arange(24) + 0.5,n_substorm_iso * dp1_dens,color=colormap[7],ls="-.",label="DP1 contribution",)
-ax.plot(np.arange(24) + 0.5,n_convec_iso * dp2_dens,color=colormap[8],label="DP2 contribution")
+ax.plot(np.arange(24) + 0.5,n_convec_iso * dp2_dens,color=colormap[2],ls='--',label="DP2 contribution")
 # ax.text(s=f"Chi-squared Goodness of Fit: {chi_iso:.3f}",x=0.025,y=0.95,transform=ax.transAxes,)
 
 ax.set_xlabel("MLT")
@@ -450,7 +495,7 @@ fig, ax = plt.subplots(dpi=300)
 ax.plot(np.arange(24) + 0.5,comp_mlt_counts,color=colormap[3],label="Compound substorm: No. of events: {}".format(len(comp_onsets)),)
 ax.plot(np.arange(24) + 0.5,fit_comp,color=colormap[9],ls="--",label="Fitted Compound substorm: DP1: {} and DP2: {} (GoF:{:.0f})".format(n_substorm_comp, len(comp_onsets) - n_substorm_comp,chi_comp),)
 ax.plot(np.arange(24) + 0.5,n_substorm_comp * dp1_dens,color=colormap[7],ls="-.",label="DP1 contribution",)
-ax.plot(np.arange(24) + 0.5,n_convec_comp * dp2_dens,color=colormap[8],label="DP2 contribution",)
+ax.plot(np.arange(24) + 0.5,n_convec_comp * dp2_dens,color=colormap[2],ls='--',label="DP2 contribution",)
 # ax.text(s=f"Chi-squared Goodness of Fit: {chi_comp:.3f}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
@@ -466,7 +511,7 @@ fig, ax = plt.subplots(dpi=300)
 ax.plot(np.arange(24) + 0.5,after_convec_mlt_counts,color=colormap[4],label="After Convection substorm: No. of events: {}".format(len(after_convec_onsets)),)
 ax.plot(np.arange(24) + 0.5,fit_after_convec,color=colormap[9],ls="--",label="Fitted After Convection substorm: DP1: {} and DP2: {} (GoF:{:.0e})".format(n_substorm_after_convec, len(after_convec_onsets) - n_substorm_after_convec,chi_after_convec))
 ax.plot(np.arange(24) + 0.5,(n_substorm_after_convec) * dp1_dens,color=colormap[7],ls="-.",label="DP1 contribution",)
-ax.plot(np.arange(24) + 0.5,n_convec_after_convec * dp2_dens,color=colormap[8],label="DP2 contribution",)
+ax.plot(np.arange(24) + 0.5,n_convec_after_convec * dp2_dens,color=colormap[2],ls='--',label="DP2 contribution",)
 # ax.text(s=f"Chi-squared Goodness of Fit: {chi_after_convec:.1e}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
@@ -482,7 +527,7 @@ fig, ax = plt.subplots(dpi=300)
 ax.plot(np.arange(24) + 0.5,other_mlt_counts,color=colormap[5],label="Other substorm: No. of events: {}".format(len(other_onsets)),)
 ax.plot(np.arange(24) + 0.5,fit_other,color=colormap[9],ls="--",label="Fitted Other substorm: DP1: {} and DP2: {} (GoF:{:.0f})".format(n_substorm_other, len(other_onsets) - n_substorm_other,chi_other),)
 ax.plot(np.arange(24) + 0.5,(n_substorm_other) * dp1_dens,color=colormap[7],ls="-.",label="DP1 contribution",)
-ax.plot(np.arange(24) + 0.5,n_convec_other * dp2_dens,color=colormap[8],label="DP2 contribution",)
+ax.plot(np.arange(24) + 0.5,n_convec_other * dp2_dens,color=colormap[2],ls='--',label="DP2 contribution",)
 # ax.text(s=f"Chi-squared Goodness of Fit: {chi_other:.3f}",x=0.025,y=0.95,transform=ax.transAxes,)
 ax.set_xlabel("MLT")
 ax.set_ylabel("Counts")
@@ -501,13 +546,15 @@ dp1 = np.sum([n_substorm_iso, n_substorm_comp, n_substorm_after_convec, n_substo
 dp2 = np.sum([n_convec_iso,n_convec_comp,n_convec_after_convec,n_convec_other,len(convec_expansiondf),])
 
 print(f"Number of events: {total_mlt_counts.sum()}")
-print(f"Number of Isolated: {isolated_onsets_mlt.size} ({isolated_onsets_mlt.size/total_mlt_counts.sum():.2f}%)")
-print(f"Number of Compound: {compound_onsets_mlt.size} ({compound_onsets_mlt.size/total_mlt_counts.sum():.2f}%)")
-print(f"Number of Convection: {convec_onsets_mlt.size} ({convec_onsets_mlt.size/total_mlt_counts.sum():.2f}%)")
+print(f"Number of Isolated: {isolated_onsets_mlt.size} ({isolated_onsets_mlt.size/total_mlt_counts.sum()*100:.0f}%)")
+print(f"Number of Compound: {compound_onsets_mlt.size} ({compound_onsets_mlt.size/total_mlt_counts.sum()*100:.0f}%)")
+print(f"Number of Convection: {convec_onsets_mlt.size} ({convec_onsets_mlt.size/total_mlt_counts.sum()*100:.0f}%)")
 
 print(f"Number of events: {nevents}")
-print(f"Number of Substorms: {n_substorms} ({n_substorms/nevents:.2f}%)")
-print(f"Number of Convection: {n_convec} ({n_convec/nevents:.2f}%)")
+print(f"Number of Substorms: {n_substorms} ({n_substorms/nevents*100:.1f}%)")
+print(f"Number of Convection: {n_convec} ({n_convec/nevents*100:.1f}%)")
+print(f"Number of Other: {len(other_onsets)} ({len(other_onsets)/nevents:.2f}%)")
+print(f"Number of After Convection: {len(after_convec_onsets)} ({len(after_convec_onsets)/nevents*100:.1f}%)")
 print(f"Number of DP1: {dp1} ({dp1/nevents*100:.0f}%)")
 print(f"Number of DP2: {dp2} ({dp2/nevents*100:.0f}%)")
 print(dp1 + dp2 == nevents)
